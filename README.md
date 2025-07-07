@@ -1,4 +1,4 @@
-# 🧠 Machine Learning Specialization by Andrew Ng
+# 🧠 Machine Learning Specialization by Stanford Online and DeepLearning.ai
 
 This repository contains detailed notes, code, and projects from the **Machine Learning Specialization** taught by **Andrew Ng**, offered via **DeepLearning.AI** on Coursera. The specialization dives into the foundational and advanced concepts of modern machine learning, with hands-on implementation using **Python** and **TensorFlow**.
 
