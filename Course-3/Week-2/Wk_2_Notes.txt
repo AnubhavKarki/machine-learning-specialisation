@@ -1,0 +1,212 @@
+Week - 2
+
+Recommender Systems:
+    A Recommender System is a type of machine learning application that suggests items to users based on their preferences, behavior, or similar 
+    users' behavior. It’s widely used in platforms like Netflix, Amazon, and Spotify to personalize content and improve user engagement.
+
+    There are two main types:
+        Collaborative Filtering – uses user-item interactions (like ratings or clicks) to recommend items based on similar users or similar items.
+        Content-Based Filtering – recommends items that are similar to what the user liked in the past, based on item features (e.g., genre, tags).
+
+    Collaborative Filtering:
+        Collaborative filtering is a recommendation technique that predicts a user's interests by learning from user-item interactions, not item content.
+        It assumes users with similar preferences in the past will like similar items in the future.
+
+        Instead of relying on item features, it learns:
+            User preference vectors (Theta)
+            Item feature vectors (X)
+
+        It minimizes a cost function to match predicted ratings (Theta * X.T) with actual ratings, only where ratings exist. This approach can
+        handle complex patterns and recommend unseen items, even without any item metadata.
+
+        It's the core behind systems like Netflix, YouTube, and Spotify recommendations.
+
+        Cost Function
+            The collaborative filtering cost function (with regularization) is:
+                J(X, Theta) = (1/2) * sum( (Theta * X.T - Y)^2 .* R ) + (lambda/2) * sum(Theta^2) + (lambda/2) * sum(X^2)
+            Where:
+                X = item features matrix (num_items x num_features)
+                Theta = user preferences matrix (num_users x num_features)
+                Y = matrix of user ratings (num_items x num_users)
+                R(i,j) = 1 if item i was rated by user j, 0 otherwise
+                lambda = regularization parameter
+        
+            NOTE: We include the X**2 term in the regularization part of the cost function to prevent overfitting by penalizing large values in the 
+                  item feature matrix X. In collaborative filtering, X represents the features that describe items, while Theta represents
+                  user preferences. Without regularization, the model might assign overly large values to X (or Theta) just to perfectly match the 
+                  training data, especially when there are few ratings. This can lead to poor generalization on new, unseen data. By adding a 
+                  regularization term like sum(X**2), we discourage the model from becoming too complex, ensuring it learns meaningful item features 
+                  that generalize well across users.
+        
+        Gradient Descent:
+            ∂J/∂X[i]     = ( (Theta @ X[i].T - Y[i]) * R[i] ) @ Theta + lambda * X[i]
+            ∂J/∂Theta[j] = ( (X @ Theta[j].T - Y[:,j]) * R[:,j] ) @ X + lambda * Theta[j]
+
+            X[i]     := X[i] - alpha * ∂J/∂X[i]
+            Theta[j] := Theta[j] - alpha * ∂J/∂Theta[j]
+
+            Where:
+                @ is matrix multiplication
+                * is element-wise multiplication
+                alpha is the learning rate
+                X[i] is the feature vector for item i
+                Theta[j] is the preference vector for user j
+                Y[i] is the vector of user ratings for item i
+                Y[:,j] is the vector of item ratings by user j
+                R[i] and R[:,j] are binary masks (1 if rating exists, 0 otherwise)
+                lambda is the regularization parameter
+        
+        NOTE: In traditional supervised learning, X represents the input features and is fixed — we don’t update it because it's part of the training data, 
+              not something we’re trying to learn. The goal is to learn parameters like w or theta that map X to the target y.
+
+              In collaborative filtering, the role of X changes. Here, X represents the latent features of items (e.g., movies, products), and Theta 
+              represents the latent preferences of users. These features aren’t given — they must be learned from the observed ratings. So, unlike in 
+              supervised learning, both X and Theta are treated as parameters and are updated during gradient descent. This is because we’re trying to 
+              uncover hidden patterns that explain user behavior, not just fit a function to fixed inputs.
+
+    Binary Labels in Collaborative Filtering
+        In collaborative filtering with binary labels, the goal is to predict whether a user will interact positively with an item (e.g., click, 
+        like, purchase). Instead of predicting a rating (like 1–5 stars), we model it as a classification task.
+        Where:
+            y(i,j) = 1 → user j liked/interacted with item i
+            y(i,j) = 0 → user j did not interact with item i
+
+        Hypothesis:
+            h(i,j) = sigmoid(Theta[j] @ X[i].T)
+            Where:
+                X[i] = feature vector for item i
+                Theta[j] = preference vector for user j
+                @ = dot product
+                sigmoid(z) = 1 / (1 + exp(-z))
+
+        Cost Function (Log Loss + Regularization):
+            J = -sum( R[i,j] * ( y[i,j] * log(h[i,j]) + (1 - y[i,j]) * log(1 - h[i,j]) ) ) +
+                (lambda/2) * sum(Theta**2) + 
+                (lambda/2) * sum(X**2)
+            Where:
+                R[i,j] = 1 if user j rated item i, else 0
+                lambda = regularization parameter
+
+        Gradient Descent Updates:
+            ∂J/∂X[i]     = sum_over_j( R[i,j] * (h[i,j] - y[i,j]) * Theta[j] ) + lambda * X[i]
+            ∂J/∂Theta[j] = sum_over_i( R[i,j] * (h[i,j] - y[i,j]) * X[i] )     + lambda * Theta[j]
+
+    Mean Normalization in Collaborative Filtering
+        Mean normalization is used in collaborative filtering to handle differences in how users rate items. Some users may consistently rate higher 
+        or lower than others, and without adjusting for this, the model might misinterpret those biases.
+
+        Why it's needed:
+            If one user always gives 5 stars and another maxes out at 3, the model might treat their preferences as different when they're actually
+            similar. Mean normalization fixes this by centering ratings around each item's average rating.
+
+        How it works:
+        Let:
+            Y[i,j] = rating by user j for item i
+            mu[i] = average rating for item i (only over users who rated it)
+
+        Then we transform:
+            Y_norm[i,j] = Y[i,j] - mu[i]
+
+        This centers each item’s ratings around zero. After training, when you predict a rating:
+            predicted_rating = Theta[j] @ X[i].T + mu[i]
+
+        Summary:
+            Mean normalization helps collaborative filtering focus on the relative preferences of users instead of being biased by absolute rating scales.
+            It’s especially helpful when some users don’t rate many items or have skewed scoring habits.
+    
+    Finding related items:
+        In collaborative filtering, finding related items is done by comparing the learned feature vectors of items, which capture their latent 
+        properties based on user interaction patterns. Once the model has learned the item feature matrix X, we can identify similar items by 
+        computing the cosine similarity between any two item vectors.
+        
+        FORMULA:
+            similarity(a, b) = (X[a] @ X[b]) / (||X[a]|| * ||X[b]||)
+
+        This measures how aligned the two item vectors are, regardless of their magnitudes. Items with higher cosine similarity are considered more related, 
+        since they are liked by similar users in similar ways. This approach allows us to discover hidden item relationships even if those items don’t share
+        obvious content-based features.
+
+    Content-based Filtering:
+        Content-based filtering recommends items to a user by analyzing both the user's preferences and the features of items. It builds a profile
+        for each user based on their past interactions, then suggests new items with similar attributes that match the user's tastes. This method 
+        focuses on understanding item characteristics (like genre, style, or category) and user preferences, enabling personalized recommendations even
+        without input from other users. It’s especially useful when user data is limited or when recommending niche items tailored to individual interests.
+
+        FORMULA:
+            predicted_rating(user, item) = user_feature_vector · item_feature_vector
+            Or, predicted_rating = W_u * X_i       [Dot-product]
+
+            Where:
+                W_u is the feature vector representing the user’s preferences
+                X_i is the feature vector representing the item’s attributes
+                The * denotes the dot product (or inner product) between the two vectors
+                This dot product measures how well the item matches the user's preferences, giving a prediction score.
+            
+    Deep Learning for content-based filtering:
+        Deep Learning for content-based filtering uses neural networks to automatically learn user preferences and item features from raw data, 
+        replacing manual feature engineering. The model learns embedding vectors W_u for users and X_i for items, which are then used to predict 
+        ratings or preferences.
+
+        Cost function:
+            The objective is to minimize the regularized squared error between predicted ratings and actual ratings:
+
+            J(W, X, b) = (1/2) * sum over i,j of [ R(i,j) * (dot(W_j, X_i) + b_j - Y(i,j))^2 ]
+                                                                            + (lambda/2) * sum over j of ||W_j||^2 + (lambda/2) * sum over i of ||X_i||^2
+
+            Where;
+                R(i,j) = 1 if user j rated item i
+                b_j is user bias
+                lambda is the regularization parameter
+
+            Pros:
+                Automatically extracts complex user and item patterns.
+                Handles large, high-dimensional datasets well.
+                Can incorporate diverse data types (images, text, etc.) for richer recommendations.
+
+            Cons:
+                Requires significant computational resources and data to train effectively.
+                Less interpretable than traditional methods.
+                Risk of overfitting if not properly regularized.
+                Overall, deep learning enhances content-based filtering by capturing deeper relationships but demands careful tuning and sufficient data.
+
+    Recommending from a large catalogue:
+        When dealing with large-scale recommender systems—like those in e-commerce or video platforms—the total number of items and users can be in the millions. 
+        Scoring all possible user-item pairs in real time is computationally infeasible. To solve this, we split the recommendation process into 
+        two main stages: retrieval and ranking.
+
+        1. Retrieval Stage:
+            The goal of the retrieval stage is to quickly narrow down the entire item catalog to a small set of promising candidates (e.g. 100–1000 items).
+            This is done using lightweight models, approximate nearest neighbors, or embedding-based similarity search. These models often match user and item
+            embeddings based on past interactions, preferences, or content features. This drastically reduces computation by filtering out the majority
+            of irrelevant items early.
+
+        2. Ranking Stage:
+            In the ranking stage, we take the retrieved subset of items and apply a more complex model—often a deep learning model—to compute a relevance 
+            score for each item-user pair. This model considers finer-grained features like user history, item metadata, and contextual signals to sort the
+            candidates in order of predicted interest.
+
+        Conclusion:
+            Splitting the recommendation process into retrieval and ranking balances efficiency with accuracy. Retrieval keeps the system fast and scalable, 
+            while ranking ensures high-quality, personalized recommendations. This two-step approach is standard in production-grade recommender systems.
+
+    Ethical use of Recommender systems:
+        Ethical use of recommender systems involves ensuring fairness, transparency, and privacy. They should avoid reinforcing harmful biases, 
+        filter bubbles, or promoting addictive behaviors. User data must be handled responsibly with consent, and systems should aim to serve 
+        user well-being—not just engagement or profit. Accountability and explainability in recommendations are key for maintaining trust.
+
+Principal Component Analysis (PCA):
+    Principal Component Analysis (PCA) is an unsupervised dimensionality reduction technique used to simplify datasets with many features while preserving
+    as much of the original variance as possible. It transforms the data into a new coordinate system such that the greatest variance lies on the 
+    first axis (called the first principal component), the second greatest on the second axis, and so on. This helps in visualizing high-dimensional 
+    data in 2D or 3D plots, making patterns more interpretable. PCA is especially useful when dealing with hundreds of features, where direct 
+    visualization or computation would otherwise be impractical or noisy.
+
+    PCA Algorithm follows a step-by-step process to reduce dimensionality effectively:
+        1. Preprocess the features by organizing the data into a matrix form.
+        2. Normalize the data so each feature has a zero mean, ensuring consistency across features.
+        3. Scale the features, typically to unit variance, to prevent features with larger scales from dominating.
+        4. Choose an axis and project data points onto it. The axis that captures the maximum variance in the data becomes the first principal component.
+        5. Identify additional principal components, each orthogonal (perpendicular) to the previous, capturing the remaining variance.
+        6. Use reconstruction to approximate the original data from the reduced feature set, which helps verify information retention after 
+           dimensionality reduction.
+        

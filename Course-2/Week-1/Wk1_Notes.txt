@@ -1,0 +1,208 @@
+Advanced Learning Algorithms
+
+Neural Networks
+    Intuition:
+        There is a shop who has a classification model, that shows whether the cloth they sold was a top seller or not (in the Y-axis),
+        along with the price (in the X-axis). We know that we fit such models using the sigmoid function previously.
+        where:
+            x = price (input)
+            y = f(x): 1/1+e^-(w*x+b) (output)
+        
+        Now, we switch the terminology a little bit:
+            Activation(a) = f(x), where activation is the concept borrowed from Neuroscience, it refers to how much a neuron is sending a high
+                                  output to other neurons downstream from it.
+            
+            Turns out that this little logistic regression algorithm, can be thought of as a very simplified model of a single neuron in the brain.
+            Where, the neuron takes the input (x), then it uses the above formula, and outputs the number a, which here is the probability of 
+            the T-shirt being a top-seller.
+
+        Building a neural network just requires taking a bunch of these neurons and wiring them together.
+    
+    EXAMPLE:
+        GOAL: Probability of T-shirt being a top seller
+
+        Suppose we have four features now, namely Price, Shipping Cost, Marketing, and Material used
+        Now, we try to find the correlation between the features, like If the product is medium priced and has a cheap shipping cost, then it is 
+        perceived as affordable. Similarly, if the product is marketed well then people may be more aware about the product, and the quality of 
+        the material used along with the price shows the perceived quality of the product. 
+
+        Like this we create neurons three neurons in the first layer, where the output of each neuron flows into a single neuron in the second layer,
+        and the second layer outputs the probability of the T-shirt being a top seller.
+
+    Activation:
+        Activation is the output value produced by a neuron after applying an activation function (like sigmoid, ReLU, etc.) to the weighted sum
+        of its inputs. It represents how strongly a neuron is "firing" or responding to the input—i.e., how much signal it sends to the neurons 
+        in the next layer. The term is inspired by neuroscience, where neuron activation reflects the level of response in a biological brain.
+
+    Layer:
+        A layer is a collection of neurons in a neural network that process input data together. Each neuron in the layer receives 
+        the same set of inputs, applies a weighted transformation followed by an activation function, and produces an output. Layers can be input, 
+        hidden, or output layers, and they pass their activations forward to the next layer in the network.
+
+    Clarification:
+        In the earlier example, it seemed like each neuron only received a few specific inputs from the previous layer. However, in 
+        practice—especially in deep neural networks—every neuron in a layer typically receives input from all neurons in the previous layer. 
+        This is known as a fully connected or dense layer, and it allows the model to capture complex patterns by combining information 
+        from all previous activations.
+    
+    Notation:
+        Feature Vector: Input(𝑥⃗), where it represents all the input features
+        Activation Vector: Activation values(𝑎⃗), where it represents all the activation values received from the previous layer.
+        Output of the Neural Network: Denoted by a, which is a single value.
+        a[number]: Square bracket is used to denote the activation value (output) of particular layer.
+                EXAMPLE: a[1] -> Output of Layer 1
+        𝑎⃗[number]: The vector of activation values from the particular layer.
+            EXAMPLE: 𝑎⃗^[2] -> Vector of activation values from layer 2
+    
+    NOTE: The input layers are called simply input layer, then the output layer is simply called as output layer, but all the layers in between
+          are called as hidden layers.
+    
+    The neural networks who have more than one hidden layer are called as Multi-Layer Perceptron (MLP).
+
+    Face Recognition in Neural Networks
+        In face recognition, the goal is to determine the probability that a given image matches a particular person’s identity.
+        Neural networks are powerful tools for this because they can learn hierarchical patterns from images.
+
+        1. Input - Image Representation:
+            An image is first converted into a vector by flattening its pixel intensity values into a column vector. For example, a grayscale 
+            100x100 image becomes a 10,000-dimensional vector 𝑥⃗ (𝑥₁, 𝑥₂, ..., 𝑥₁₀₀₀₀), where each value represents the brightness of a pixel.
+
+        2. First Hidden Layer - Edge Detection:
+            The first hidden layer takes this input vector and begins to detect basic features, like vertical and horizontal edges. 
+            Each neuron in this layer computes a weighted sum of the inputs, applies an activation function, and passes the result forward. 
+            This step transforms raw pixels into edge-level features.
+
+        3. Second Hidden Layer - Patterns & Shapes:
+            The activations from the first layer become the input for the second hidden layer. Here, neurons start to detect combinations of 
+            edges—like corners, curves, and simple shapes—by identifying recurring patterns across the image.
+
+        4. Deeper Layers - High-Level Features:
+            As we add more hidden layers, the network begins to recognize complex structures, such as eyes, nose, mouth, and the relative 
+            arrangement of these features. These deeper layers capture abstract patterns that define a specific face.
+
+        5. Output Layer - Probability of Identity:
+            The final layer outputs a probability distribution over all known identities. For instance, if the model is trained to recognize 10 people, 
+            the output layer may have 10 neurons, each representing the probability that the input image belongs to one of them.
+
+        Summary:
+            By transforming an image into a vector and passing it through multiple neural layers, the network learns to extract increasingly complex 
+            features—from pixels to edges to facial structures. This layered approach enables neural networks to recognize faces with high accuracy by 
+            learning what patterns distinguish one person from another.
+        
+    EXAMPLE:
+        Input vector: x
+        Number of layers (excluding input): 3
+
+        Activations: a[1], a[2], a[3] (final output)
+        Weights: w[1], w[2], w[3]
+        Biases: b[1], b[2], b[3]
+        Activation function:
+            sigmoid(z) = 1 / (1 + e^(−z))
+
+        Forward Propagation:
+            Layer 1:
+            z[1] = w[1] · x + b[1]
+            a[1] = sigmoid(z[1])
+
+            Layer 2:
+            z[2] = w[2] · a[1] + b[2]
+            a[2] = sigmoid(z[2])
+
+            Layer 3 (Output Layer):
+            z[3] = w[3] · a[2] + b[3]
+            a[3] = sigmoid(z[3])
+
+            Final prediction:
+            If a[3] ≥ 0.5 → Predict 1
+            Else → Predict 0
+    
+    Generic Activation Formula:
+        aⱼ^[l] = g(wⱼ^[l] · a^[l−1] + bⱼ^[l])
+            Where:
+                aⱼ^[l] is the activation of neuron j in layer l
+                wⱼ^[l] is the weight vector for neuron j in layer l
+                a^[l−1] is the activation vector from layer l−1 (the previous layer)
+                bⱼ^[l] is the bias for neuron j in layer l
+                g is the activation function (e.g. sigmoid, ReLU, etc.)
+    
+    Forward Propagation:
+        Forward propagation is the process by which a neural network takes input data and passes it through each layer to compute the final
+        output or prediction. It involves a series of computations in each layer:
+
+        Linear Combination:
+            Each neuron calculates a weighted sum of its inputs from the previous layer and adds a bias term:
+                z_l = W_l · a_(l−1) + b_l
+
+        Activation:
+            The result of the linear combination is passed through an activation function (like sigmoid or ReLU) to introduce non-linearity:
+                a_l = g(z_l)
+        NOTE:
+            After a neuron performs the linear combination of its inputs (z = w · x + b), the result is passed through a non-linear 
+            activation function (like sigmoid, ReLU, or tanh). This is crucial because, without non-linearity, no matter how many layers we stack,
+            the entire network would behave like a single linear function.
+
+            By applying a non-linear activation, the network can learn complex patterns such as curves, edges, and intricate decision boundaries.
+            This is what enables neural networks to solve real-world problems like image recognition, speech processing, and more.
+
+        This process is repeated from the input layer, through all hidden layers, to the output layer. The final activation (a_L) is 
+        the network’s prediction. Forward propagation is the first step in training and evaluation, followed by backpropagation for learning.
+
+    Lab-1 Notes:
+        Dense Layer:
+            Fully connected layer; each neuron connects to all inputs.
+            Computes weighted sum + bias, then applies activation function.
+            Example: Dense(units=3, activation='relu') → 3 neurons with ReLU.
+
+        Sequential Model:
+            Stacks layers linearly, one after another.
+            Simplifies building models by managing data flow through layers.
+            Example:
+                model = Sequential([
+                    Dense(5, activation='relu', input_dim=4),
+                    Dense(1, activation='sigmoid')
+                ])
+        
+        EXAMPLE: Building a neural network architecture
+            model = Sequential([
+                Dense(3, activation='sigmoid'),
+                Dense(1, activation='sigmoid')
+            ])
+
+            x = np.array([[200.0, 17.0],
+                         [120.0, 5.0],
+                         [425.0, 20.0],
+                         [212.0, 18.0],
+                        ])
+            y = np.array([1,0,0,1])
+            model.compile()
+            model.fit(x,y)
+            model.predict(x_new) <- Instead of building a new model again, we can use the same previously created model and pass the new values of x to it.
+
+    Forward Propagation in NumPy:
+    EXAMPLE:
+        W = np.array([              <- Capital W, in linear algebra Uppercase is used to represent Matrix.
+            [1, -3, 5],
+            [2, 4, -6]
+        ])
+    
+        b1 = -1, b2 = 1, b3 = 2
+        b = np.array([-1, 1, 2])
+        a_in = np.array([-2, 4])
+        
+        def dense(a_in, W, b):
+            units = W.shape[1]
+            a_out = np.zeros(units)
+            for j in range(units):
+                w = W[:,j]
+                z = np.dot(w, a_in) + b[j]
+                a_out[j] = g(z)
+            return a_out
+
+        def sequential(x):
+            a1 = dense(x, W1, b1)
+            a2 = dense(a1, W2, b2)
+            a3 = dense(a2, W3, b3)
+            a4 = dense(a3, W4, b4)
+            f_x = a4
+            return f_x
+        

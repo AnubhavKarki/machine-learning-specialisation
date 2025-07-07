@@ -1,0 +1,496 @@
+Week 3
+
+Classification:
+    The output variable 'y' can only take on handful of possible outcomes as compared to infinitely many outcomes in linear regression.
+    EXAMPLE:
+        1. Is this email spam?                  Yes or No
+        2. Is the transaction fraudulent?       Yes or No
+        3. Is the tumor malignant?              Yes or No
+
+        Here, 'y' can only be one of two values
+        This type of classification where the output labels are two classes / categories is called binary classification.
+        The outcomes are also represented by 0 (False / Negative Class) or 1(True / Positive Class).
+    
+        In such scenarios, linear regression may luckily work, but as linear regression is used with qualitative data and is used to predict
+        value from infinitely large dataset, it will fall short when it comes to classification task, as it wouldn't be able to appropriately
+        label each value in finite class.
+
+    Logistic Regression:
+        Logistic regression is essentially a linear regression model combined with the sigmoid function. First, it calculates a linear combination
+        of the input features and parameters, expressed as z = w · x + b. Instead of using z directly for prediction, logistic regression passes it
+        through the sigmoid function, which maps any real-valued number into a value between 0 and 1. This output is then interpreted as the
+        probability of belonging to a particular class. So, logistic regression takes the linear output and converts it into a probability, enabling
+        binary classification. This makes it a powerful and intuitive way to model classification problems by extending
+        linear regression with a non-linear activation.
+
+        Logistic regression is a classification algorithm used to predict binary outcomes (0 or 1).
+        It uses the Sigmoid function, also called the Logistic function, to map any real-valued number into a value between 0 and 1.
+
+        The Sigmoid function is defined as:
+            g(z) = 1 / (1 + e^(-z))
+            Where,
+                e is Euler’s number, approximately 2.7.
+                The input z is a linear combination of features and parameters, usually represented as:
+                    z = w · x + b
+                w is the weight vector, x is the feature vector, and b is the bias term.
+
+        How the Sigmoid function behaves with respect to z:
+            When z is very large and positive, e^(-z) approaches 0, so:
+                g(z) ≈ 1 / (1 + 0) = 1
+            This means the output is close to 1, representing one class.
+
+            When z is very large and negative, e^(-z) becomes very large, so:
+                g(z) ≈ 1 / (1 + infinity) = 0
+            This means the output is close to 0, representing the other class.
+
+            When z = 0, the function outputs exactly 0.5:
+                g(0) = 1 / (1 + e^(0)) = 1 / 2 = 0.5
+            This represents the decision boundary where the model is equally likely to predict either class.
+
+        In summary, logistic regression uses the sigmoid function to convert linear predictions z into probabilities between 0 and 1,
+        enabling classification decisions based on a threshold (commonly 0.5).
+
+        Firstly, we have:
+            f-subscript(w,b) (X):
+                z = W . X + b
+            This z is then passed to:
+                g(z) = 1/1 + e ^ -z
+            
+        Combining these two equations we get logistic regression:
+            f-subscript(w,b) (X) = g(W . X + b) = 1/1 + e ^ -(W . X + b)
+
+        Interpretation of logistic regression output:
+            FORMULA: f-subscript(w,b) (X) = g(W . X + b) = 1/1 + e ^ -(W . X + b)
+            Probability that the class is 1, given input X.
+
+            EXAMPLE:
+                X is "Tumor size"
+                Y is 0 (benign)
+                Y is 1 (malignant)
+
+                f-subscript(W, b) (X) = 0.7
+                70% chance that Y is 1
+
+                We know, P(y = 0) + P(y = 1) = 1 [That is both probability should add up to 1]
+                Then, P(y = 0) = 1 - P(y = 1)
+                    or,        = 1 - 0.7
+                    Therefore, P(y = 0) - 0.3 [That is 30% chance]
+            
+            Generally in research papers, they use notations like:
+                NOTATION: f-subscript(W,b) (X) = P(y = 1 | X; W, b)
+                This is simply read as: The function of X is the Probability of Y being 1, given the input features X, and with parameters W and b.
+                Here, semi-colon is used to denote W, and b are parameters.
+            
+                Hence, Probability that y is 1, given input X, parameters W, and b.
+
+    Decision Boundary:
+        A decision boundary is the line or surface that separates predicted classes (0 or 1) based on the model's output.
+        It is defined where the model output equals 0.5.
+        Since the sigmoid function outputs 0.5 when z = 0, we set:
+            w · x + b = 0
+            This equation defines the decision boundary. Points on this boundary give exactly a 50% prediction for class 1.
+
+        Interpretation:
+            If w · x + b > 0, then the sigmoid output is > 0.5 → predict class 1
+            If w · x + b < 0, then the sigmoid output is < 0.5 → predict class 0
+
+        Example (1D):
+            Suppose w = 2, b = -4
+
+        Then the decision boundary is:
+            2x - 4 = 0 → x = 2
+        So:
+            x < 2 → predict 0
+            x > 2 → predict 1
+            x = 2 → on the decision boundary (50/50)
+
+        Key points:
+            The decision boundary is linear in logistic regression
+            In 2D, it’s a line
+            In higher dimensions, it becomes a hyperplane
+
+    Non-linear Decision Boundary in Logistic Regression
+        A basic logistic regression model creates a linear decision boundary, defined by the equation:
+            w · x + b = 0
+
+        However, real-world data is often not linearly separable. To handle this, we can introduce non-linear features by transforming
+        the input using higher-order polynomials or other non-linear functions.
+
+        This effectively allows logistic regression to model complex, curved decision boundaries.
+
+        Examples:
+            Quadratic terms (x^2)
+            Suppose we transform input x into two features: x and x²
+            So z = w1 * x + w2 * x² + b
+
+        The decision boundary becomes:
+            w1 * x + w2 * x² + b = 0
+
+        This forms a parabola. Now the boundary can bend and capture non-linear patterns.
+
+        Interaction terms:
+            In 2D input (x1, x2), include a term like x1 * x2
+            z = w1 * x1 + w2 * x2 + w3 * x1 * x2 + b
+            This allows the model to separate data using curved surfaces, not just straight lines.
+
+        Higher-degree polynomials
+            Add x³, x⁴, etc. to input features
+            z = w1 * x + w2 * x² + w3 * x³ + ... + b
+            The decision boundary becomes even more flexible, capable of forming loops or multiple curves.
+
+        Radial features
+            Use a radial term like (x1² + x2²)
+            z = w1 * (x1² + x2²) + b
+            Decision boundary becomes a circle, useful for circularly separable data.
+
+        Key idea:
+            By engineering features using non-linear functions, we transform the input space.
+            Logistic regression still learns a linear model in this transformed space, but it results in a non-linear decision boundary
+            in the original input space.
+
+    Cost Function in Logistic Regression:
+        As we know cost function are very essential to know how well specific parameters fit the data.
+        Here, we will focus on why Mean Squared Error(MSE) is not ideal for logistic regression.
+
+        So when we use MSE for linear regression, then the cost function (MSE) gives us a convex graph (or a hammock shape) which has one global
+        minimum, making sure that gradient descent algorithm works correctly to find the minimum value for the parameters.
+        But, the problem arises with logistic regression, where we use the formula f-subscript (W,b) (X) = 1 / 1 + e ^ -z, here MSE plot would give us
+        a wavy plot also known as non-convex curve, making it very hard for gradient descent to find the global minimum as it has multiple dips throughout
+        the plot.
+
+        Minimum Squared Error (MSE):
+            FORMULA: (1 / m) * Σ (1 / 2)(f-subscript (W,b) (x^(i)) - y^(i))²
+            Here, just the 1/m is separated out to make the math a bit easier to grasp later on.
+
+        Let,
+            Loss (L) = L(f(x^(i)), y^(i)), be the loss on single training example where it is simply the part of the MSE after summation sign above
+            in the equation.
+            i.e, Loss (L) = (1 / 2)(f-subscript (W,b) (x^(i)) - y^(i))²
+
+            By choosing a different form for the loss function we can map out a cost function for logistic regression.
+
+        Logistic Loss Function:
+             L(f(x^(i)), y^(i)) = {
+                                    -log(f-subscript(W,b) (X^(i)))          if y^(i) = 1
+                                    -log(1 - f-subscript(W,b) (X^(i)))      if y^(i) = 0
+                                }
+        if True Label(y^(i)) = 1,
+        Then the Loss is: -log(f-subscript(W,b) (X^(i))):    
+            Plotting the graph for log(f) and -log(f) (in Desmos):
+                We can see that the curve for log(f) goes from -Y,X to Y,X crossing the axis when f = 1, and the curve for -log(f) goes from
+                Y,X to -Y,X crossing the horizontal axis when f = 1.
+                
+                Now, Function (f) is the output of logistic regression, thus f is always between 0 and 1. So, only the section of the plot
+                when f goes from 0 to 1 is the part where we focus.
+
+            Now, if algorithm predicts the probability close to 1 and the true label (y) is 1, then the loss is very small (tends to 0).
+                i.e, As f(X) -> 1, and y = 1 then Loss -> 0
+            If the algorithm predicts the probability close to 0, but the true label (y) is 1, then the loss would be a much higher value (infinity).
+                i.e, As f(X) -> 0, and y = 1 then loss -> Infinity
+            
+            NOTE: When True Label (y) = 1, the Loss function incentivizes or pushes the algorithm to make more accurate predictions because the loss is lowest
+            when it predicts values close to 1.
+        
+        if True Label (y^(i)) = 0,
+        Then the Loss is: -log(1 - f-subscript(W,b) (X^(i))):
+            Plotting the graph for -log(1 - f):
+                We can see that the curve for this function goes from -X,-Y to X,Y intersecting the origin at exactly the point 0.
+                
+                Now, If the algorithm predicts 0, and the true label (y) is 0, then the loss is very small (tends to 0).
+                    i.e, As f(X) -> 0, and y = 0 then loss -> 0
+                If the algorithms predicts 1, and the true label (y) is 0, then the loss is very very large (tends to infinity).
+                    i.e, As f(X) -> 1, and y = 0, then loss -> Infinity
+
+                So, the larger the value f(X) returns the loss is going to be significantly large too.
+        
+            The further the prediction of f(X) is from the target y, the higher the loss.
+        
+        NOTE: The curve is convex but will not be covered here, it uses advanced mathematical knowledge for the proof.
+
+        Now you know why MSE won't work for logistic regression and how defining Loss function for logistic regression we can achieve a convex
+        function and reach a global minimum.
+
+        As we know, the cost function is the function of the entire training set, therefore, the average or 1/m times the sum of the loss
+        function on the individual training examples.
+        
+        Cost Function:
+            J(W,b) = 1/m Summation i = 1 to m L(f(X^(i)), y^(i))
+
+        Now, the goal is to find the best values for w and b parameters so that the function J(w,b) returns min(w,b) J(W,b).
+
+        Step-by-step Derivation of Log Loss for Logistic Regression:
+            Prediction:
+                In logistic regression, we predict probabilities using the sigmoid function:
+                    y_hat = 1 / (1 + exp(-(w · x + b)))
+
+                This means:
+                    y_hat is the predicted probability that the label is 1.
+                    (1 - y_hat) is the predicted probability that the label is 0.
+
+            Likelihood:
+                We want to define how "likely" our model's prediction is to match the true label.
+                If the true label y = 1, the likelihood is y_hat.
+                If the true label y = 0, the likelihood is 1 - y_hat.
+
+            To express this in one formula:
+                Likelihood = (y_hat)^y * (1 - y_hat)^(1 - y)
+
+            This works because:
+                If y = 1 → Likelihood = y_hat
+                If y = 0 → Likelihood = 1 - y_hat
+
+            Loss Function:
+                Since machine learning models minimize error (not maximize probability), we convert likelihood to a loss using negative log-likelihood:
+                Loss = -log( (y_hat)^y * (1 - y_hat)^(1 - y) )
+
+            Apply Logarithm Rules:
+                Using log rules:
+                    log(a * b) = log(a) + log(b)
+                    log(a^b) = b * log(a)
+
+                We simplify the equation:
+                    Loss = - (y * log(y_hat) + (1 - y) * log(1 - y_hat))
+
+        NOTE:
+            In logistic regression, we use the negative log of the predicted probability as the loss because it behaves well mathematically and
+            aligns with our goals for training. The model outputs a probability between 0 and 1. If the prediction is accurate and confident 
+            (close to 1 for a true label of 1), the log of that probability is close to 0. However, the log of a number between 
+            0 and 1 is negative, so we take the negative log to turn it into a positive loss value. This ensures that correct predictions give a
+            small loss, and incorrect predictions (like predicting a low probability for a true label of 1) result in a very large loss
+            (since log of a small number is a large negative, and the negative of that is a large positive). We use the logarithm because it 
+            grows rapidly as the prediction becomes more wrong, strongly penalizing confident but incorrect predictions. This property helps guide
+            the model to improve by encouraging high-confidence correct predictions and discouraging incorrect ones.
+
+        NOTE:
+            Loss is a measure of the difference of a single example to its target value
+            while the Cost is a measure of the losses over the training set
+
+            Also, Here log means the natural logarithm.
+
+    The logistic loss function, also known as cross-entropy loss, creates a convex cost surface when combined with the sigmoid activation
+    in logistic regression. Convexity is crucial because it ensures there is only one global minimum, meaning that gradient descent can reliably
+    find the best weights without getting trapped in local minima. This behavior arises because the combination of the sigmoid function and 
+    the log loss produces a smooth, bowl-shaped curve. Mathematically, this is confirmed by the second derivative (the Hessian) of the cost 
+    function being positive semi-definite.
+
+    The specific form of the logistic loss function comes from the principle of Maximum Likelihood Estimation (MLE). Logistic regression models
+    the probability of a class label given input features using a sigmoid function. MLE aims to find the parameters (weights and bias) that 
+    maximize the likelihood of observing the actual data. This leads to a likelihood function, and taking the log of this likelihood simplifies 
+    computation and turns the product of probabilities into a sum. To frame this as a minimization problem (as is standard in optimization), 
+    we take the negative of this log-likelihood, resulting in the familiar logistic loss function.
+
+    This loss function is particularly powerful because it penalizes wrong, confident predictions heavily. For example, if the model predicts 
+    a value close to 0 when the true label is 1, the loss becomes very large. Conversely, if the model predicts close to the correct class 
+    probability, the loss approaches zero. This behavior helps the model learn accurate decision boundaries and encourages calibrated 
+    probability estimates.
+
+Gradient Descent in Logistic Regression:
+    Goal:
+        Find appropriate values for the parameters, w and b.
+        Then, Given new X, output f(X) = 1 / 1 + e^-(w.x + b)
+        We get, P(y = 1|x; w,b)
+    
+    The gradient descent algorithm for logistic regression is conceptually similar to linear regression. However, instead of using the 
+    linear hypothesis function, we use the sigmoid function as our prediction:
+
+    Prediction function:
+        f_wb = sigmoid(np.dot(x, w) + b)
+
+    Cost function (for reference):
+        J(w, b) = (1/m) * Σ[ -y * log(f_wb) - (1 - y) * log(1 - f_wb) ]
+
+    To minimize this cost function using gradient descent, we calculate the partial derivatives of the cost with respect to the parameters w and b.
+
+    Gradients:
+        The gradients of the cost function with respect to parameters are:
+            dj_dw = (1/m) * Σ[ (f_wb - y) * x ]
+            dj_db = (1/m) * Σ[ (f_wb - y) ]
+
+    These derivatives are used to update the parameters w and b iteratively:
+
+    Same Concepts as linear regression are:
+        1. Monitor Gradient Descent (Learning Curve) - Quick convergence
+        2. Vectorized implementation - Efficient implementation for large models
+        3. Feature Scaling - Speed up gradient descent
+
+Underfitting:
+    When the model does not fit the training set well. Also called as a model having high bias.
+    In other words, the model has a preconception of a particular value despite being completely incorrect.
+
+Generalization:
+    When the model correctly addresses the data in the model without completely predicting each values but still relatively accurate than an underfit model.
+    This is the type of model we should aim to build.
+
+Overfitting:
+    When the model over generalizes the training set pretty well but fails to address unseen data in the validation set, is a good example of
+    overfitting. It is also called as a model having high variance, which means the model is trying very hard to fit the model accurately, but
+    if an unseen data comes in it completely falls apart.
+
+    When overfitting has occurred, we can do the following:
+        1. Collect more training examples, which can help us fit higher level polynomials with many number of features.
+        2. Feature Selection: If not enough data is available, we can select features to include / exclude.
+        3. Regularization: It reduces the size of parameters gently, without making them exactly zero. By shrinking the values of the parameters, 
+                           we reduce the size of the output but don't necessarily eliminate that information outright.
+    
+    Cost Function with Regularization for Linear Regression:
+        Idea: If the parameters have smaller value then they are less likely to overfit. So our goal is to reduce the size of the parameters as much
+              as we can. But, how do we know which parameters to penalize, hence we regularize / penalize all the parameters in the model, to 
+              make sure the values do not skyrocket.
+            
+              For this we use, a regularization term to penalize the model and strengthen the actual parameters who show significance.
+              
+        GOAL: Minimize w, and b so that the following formula produces minimum cost value.
+        FORMULA: 
+            J(W,b) = 1/2m Summation i = 1 to m (f(w,b) (X^(i)) - y^(i)^2) + lambda / 2m Summation of j = 1 to n (wj^2)
+            Where,
+                lambda = It is the regularization parameter, similar to learning rate (alpha) we choose the value for lambda.
+                         Where the value of lambda is greater than 0
+            
+            NOTE: We divide both the terms by 2m because scaling them in the similar way it becomes easier to choose a good value for lambda.
+                  And, even if the training set grows in size, the same value of lambda is most likely to work.
+                
+                  We do not penalize the parameter b, because it makes very little practical difference.
+                  But sometimes they use the scaling term Cost_Func + lambda/2m * b^2, as it can include or exclude b.
+                  Not necessary to implement this as it has little difference.
+
+        EXAMPLE:
+            If we choose the value for lambda to be extremely small, i.e., lambda = 0, then the regularization term would be zero, hence
+            the second half of the formula would be zero and only the MSE would be executing, which results in model overfit.
+
+            If we choose the value for lambda to be extremely large, i.e., lambda = 10^10, then the function J, as its goal is to select the values
+            of w, and b such that the cost is minimized, would then select the value for w to be extremely small i.e., close to 0, ensuring the
+            large 10^10 is cancelled out by a number close to zero, hence producing the formula to only render the term b, which is a constant
+            that is unchanged, hence a horizontal plot also known as model underfit.
+
+            It we choose the value of lambda to be responsibly accurate, then the model would appropriately balance the parameters and hence fit the model.
+        
+    Gradient Descent with Regularized Linear Regression:
+        FORMULA for Regularization:
+            J(W,b) = 1/2m Summation i = 1 to m (f(w,b) (X^(i)) - y^(i)^2) + lambda / 2m Summation of j = 1 to n (wj^2)
+        
+        The only change in the gradient descent would be for the derivative of the function J with respect to w,
+        Where we get this additional term at the end during differentiation.
+            FORMULA: 1/m Summation i = 1 to m (f(w,b) (X^(i)) - y^(i)) * xj^(i) + lambda / m * wj
+        
+        Implementing Gradient Descent:
+            repeat_until_convergence {
+                wj = wj - alpha[1/m Summation i = 1 to m [(f(w,b)(X^(i) - y^(i)) * xj^(i))] + lambda/m * wj]
+                b = b - alpha * 1/m Summation i = 1 to m (f(w,b) (X^(i)) - y^(i))
+            } simultaneous update
+    Derivation: 
+        To minimize the regularized cost function for linear regression using gradient descent.
+        
+        1. Regularized Cost Function:
+            We begin with the regularized cost function for linear regression:
+                J(w, b) = (1 / (2m)) * Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾)² + (λ / (2m)) * Σ wⱼ²
+            Where:
+                f_wb(x⁽ⁱ⁾) = prediction = wᵀx⁽ⁱ⁾ + b
+                m = number of training examples
+                n = number of features
+                λ = regularization parameter
+
+            First sum:
+                Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾)² is from i = 1 to m
+
+            Second sum:
+                Σ wⱼ² is from j = 1 to n (not starting from j=0 to avoid regularizing bias)
+                    w = weights (vector of shape (n,))
+                    b = bias (scalar)
+
+        2. Gradient Descent Update Rule:
+            We want to minimize J(w, b) by updating w and b using gradient descent:
+                Repeat until convergence:
+                    wⱼ := wⱼ - α * ∂J(w, b)/∂wⱼ
+                    b := b - α * ∂J(w, b)/∂b
+                Where:
+                    α is the learning rate
+                    ∂J/∂wⱼ and ∂J/∂b are the gradients (partial derivatives)
+
+        3. Derivative w.r.t. b (bias):
+            Only the non-regularized part depends on b.
+            So:
+                ∂J/∂b = (1 / m) * Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾)
+                No regularization term is applied to b.
+
+        4. Derivative w.r.t. wⱼ (weights):
+            We take derivative of both the loss term and the regularization term:
+                ∂J/∂wⱼ = (1 / m) * Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾) * xⱼ⁽ⁱ⁾ + (λ / m) * wⱼ
+                    First part:
+                        Gradient of squared error loss
+                    Second part:
+                        Derivative of (λ / (2m)) * wⱼ² w.r.t. wⱼ is (λ / m) * wⱼ
+
+        5. Final Gradient Descent Update Equations:
+            For j = 0 to n-1:
+                wⱼ := wⱼ - α * [ (1 / m) * Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾) * xⱼ⁽ⁱ⁾ + (λ / m) * wⱼ ]
+                b := b - α * (1 / m) * Σ (f_wb(x⁽ⁱ⁾) - y⁽ⁱ⁾)
+
+            Where:
+                xⱼ⁽ⁱ⁾ = value of feature j in example i
+                f_wb(x⁽ⁱ⁾) = wᵀx⁽ⁱ⁾ + b
+                y⁽ⁱ⁾ = actual label of example i
+                α = learning rate
+                λ = regularization strength
+                wⱼ = weight for feature j
+                b = bias term
+                m = number of training samples
+
+        Why Regularization?
+            To reduce overfitting by penalizing large weight values, especially in high-dimensional or noisy data. Regularization forces weights
+            to stay small and generalize better to unseen data.
+
+        Rules Used in Derivation:
+            Chain Rule for differentiating composite functions like (wᵀx + b)²
+            Power Rule for derivative of wⱼ² → 2wⱼ
+            Sum Rule for linearity of differentiation over sums
+            Ignoring regularization on b to avoid restricting the bias term
+    
+    Gradient Descent with Logistic Regression:
+        FORMULA:
+            J(w, b) = -(1/m) * Σ [ y⁽ⁱ⁾ * log(σ(z⁽ⁱ⁾)) + (1 - y⁽ⁱ⁾) * log(1 - σ(z⁽ⁱ⁾)) ] + (λ / (2m)) * Σ wⱼ²
+
+    Derivation:
+        Cost Function:
+            The regularized logistic regression cost function is:
+                J(w, b) = -(1/m) * Σ [ y⁽ⁱ⁾ * log(σ(z⁽ⁱ⁾)) + (1 - y⁽ⁱ⁾) * log(1 - σ(z⁽ⁱ⁾)) ] + (λ / (2m)) * Σ wⱼ²
+            Where:
+                z⁽ⁱ⁾ = w · x⁽ⁱ⁾ + b
+                σ(z) = 1 / (1 + e^(-z)) is the sigmoid function
+                m is number of training examples
+                w is the weight vector
+                b is the bias term
+                x⁽ⁱ⁾ is the i-th feature vector
+                y⁽ⁱ⁾ is the i-th label (0 or 1)
+                λ is the regularization strength (L2 penalty)
+
+            NOTE: Regularization applies only to weights, not bias
+
+        Goal:
+            Minimize J(w, b) using gradient descent by computing the partial derivatives w.r.t. each parameter.
+
+        Derivative w.r.t. Weights wⱼ:
+            Apply chain rule to the cost function:
+                ∂J/∂wⱼ = (1/m) * Σ [ (σ(z⁽ⁱ⁾) - y⁽ⁱ⁾) * xⱼ⁽ⁱ⁾ ] + (λ / m) * wⱼ
+
+            Explanation:
+                First term:
+                    It is from the cross-entropy loss
+                Second term:
+                    It is the derivative of the regularization term:
+                        ∂/∂wⱼ [ (λ / 2m) * Σ wⱼ² ] = (λ / m) * wⱼ
+
+        Derivative w.r.t. Bias b
+            ∂J/∂b = (1/m) * Σ [σ(z⁽ⁱ⁾) - y⁽ⁱ⁾]
+            Explanation:
+                No regularization is applied to bias
+                Derivative is from the original logistic loss
+
+        Gradient Descent Update Rules
+            Repeat:
+                w := w - α * ∇w
+                b := b - α * ∇b
+            Where:
+                α is the learning rate
+                ∇w is the vector of ∂J/∂wⱼ for all j
+                ∇b is ∂J/∂b
+

@@ -1,0 +1,315 @@
+Supervised Machine Learning: Regression and Classification
+
+Artificial General Intelligence: Intelligent machines who are as intelligent as humans.
+
+Machine Learning: Defined by Arthur Samuel (1959), It is a field of study that gives computers the ability to learn without being explicitly programmed.
+    Two main types of main machine learning algorithms are:
+        1. Supervised Learning:
+            It is a type of ML algorithm that is used most in real-world applications. It also has seen rapid advancements throughout
+            the years.
+
+            Algorithms that is able to learn X -> Y, input to output label. This means it learns from being given "right answers" where it trains itself
+            and later on just by the input label itself it is able to produce a significantly accurate answer.
+
+            EXAMPLE:
+                Input(X)           Output(Y)         Applications
+                  email            spam?(Y/N)        Spam Filtering
+                  audio            text transcripts  Speech Recognition
+                  English          Spanish           Machine Translation
+            
+            Ways to implement this technique:
+                1. Regression:
+                    Predict a number from infinitely many possible outputs.
+                    EXAMPLE: Price for a particular house, given that we have a time-series chart for past house sales.
+                
+                2. Classification:
+                    Predicting if a given input belongs to limited set of classes / categories. Categories don't need to be a number it can be words.
+                    EXAMPLE: Breast cancer detection system, where it classifies if the lump is malignant or benign.
+
+        2. Unsupervised Learning:
+            Type of ML algorithm that is used to find something interesting in unlabeled data. We want the algorithm to find patterns or structures in the
+            data.
+
+            Data only comes with input labels X, but not output labels Y, and the algorithm has to find structure in the data.
+
+            Ways to implement this technique:
+                1. Clustering:
+                    A type of ML algorithm that groups the unlabeled data based on structures or patterns it sees in the data.
+                    EXAMPLE: Google News: It clusters news with similar word / phrases to provide a much organized experience to the users.
+
+                2. Anomaly Detection:
+                    Find unusual data points.
+                
+                3. Dimensionality Reduction:
+                    Compress data using fewer numbers.
+
+    And, there are some other types too:
+        1. Recommender Systems: Also used a lot.
+        2. Reinforcement Learning
+
+Terminologies:
+    1. Training Set: Data used to train the model.
+
+    2. Independent Variable: Denoted by 'X' or 'x' and is also known as "Feature". These values are the ones that determine the
+                             value for the dependent variable.
+
+    3. Dependent Variable: Denoted by 'Y' or 'y' and is also known as "output" variable or "target" variable. These are the values that are 
+                           determined by the independent variable.
+    
+    4. Total Number of training samples: Denoted by 'm'. The size of the training set.
+
+    5. Single Training Example: Denoted by (X,y). This shows one instance of a data point in the training set.
+                       EXAMPLE: (2104, 400), where X = size of the house in feet^2 and y = price of the house in $1000's
+    
+    6. (x^(i), y^(i)) = i^th training example (where 'i' can be any from 1 to m). Don't confuse this with exponent, here x^(2) != x^2
+
+
+Pictorially:
+                Training Set        <- It learns from input features and output target
+                    |
+                    v
+                Learning Algorithm
+                    |
+                    v
+                Function (f)    <- It used to be called as hypothesis previously. The learning algorithm produces a function to describe the pattern.
+                                   The job of this function is to take X (input) and produce an estimate of the output which is Y-hat(^)
+                                   The function is called as Model.
+
+                                   NOTE: y != y(hat); Because 'y' is the actual value of in the dataset, but y(hat) is an estimated value of 'y' also known as
+                                         prediction.
+
+Now, what is the formula to compute f?
+-> Let's assume 'f' is a straight line, then the equation for f becomes:
+        f subscript(w,b) (X) = w.x + b
+    also can be written as:
+        f(x) = wx + b
+        Where,
+            x = input
+            w = weight/slope
+            b = bias/intercept
+            y = prediction/output
+            
+    This function will then fit a straight line across the data points which approximates all the data points in the set.
+    But, why do we select linear (fancy term for a "straight line") function, this is because a linear function helps to build a foundation for 
+    other models, so it can be used as a simple and quick representation of the problem and can then me supplemented with other features via
+    experimentation.
+
+    This particular model is called as linear regression with one variable, where the one variable is the one input feature provided to the model.
+    Another name for linear regression with one variable is Univariate linear regression.
+
+In other to make this work, we need to implement something called as a cost function. It is a very important idea.
+
+Cost Function:
+    In order to implement linear regression we need cost function.
+    Recall: y = wx + b
+            Where,
+                w,b: parameters (variables that can be adjusted)
+                     They are also called as coefficients or weights
+                
+    Let's see what w and b does:
+        When, w = 0, and b = 1.5, we get a horizontal line, hence y(hat) is 1.5.
+        b is also called as y-intercept, because that's where it crosses y-axis on the graph.
+
+        When, w = 0.5 and b = 0, we get the formula as f(x) = 0.5*X, hence the value of w gives us the slope of the line.
+    
+        When, w = 0.5 and b = 1, then f(x) = 0.5x + 1, if x = 0, then f(x) = 1, and when x = 2, f(x) = 2, then line is a straight line, and the slope is
+        given by w i.e 0.5
+    
+    Also, when a training sample is taken individually it is given by:
+        (x^(i), y^(i)), where y is the "target".
+        For given, x^(i) the function also predicts an estimate of y^(i) that is given by y(hat)^(i).
+
+        y(hat)^(i) = f(w,b)(x^(i))
+        f(w,b)(x^(i)) = wx(i) + b
+    
+    Now, how do we find the value of w and b, so that the value of y(hat)^(i) is close to y^(i) for all (x^(i), y^(i)).
+
+    Mean-Squared Error Cost Function:
+
+    Simply: To do that, we need to construct our cost function. It measures how far off our predictions are from the actual values
+            by squaring their difference.
+
+    FORMULA:
+        J(w, b) = (1 / 2m) * Σ(i = 1 to m) [(ŷ(i) - y(i))²]
+        Where:
+            J(w, b) = cost function
+            m = number of training examples
+            error(i) = ŷ(i) - y(i) | error = expected (predicted) − observed (actual)
+            ŷ(i) = predicted value = w * x(i) + b
+            y(i) = actual target value
+            x(i) = input feature
+            w = weight (slope)
+            b = bias (intercept)
+
+        We use 1/2m in the cost function to average the squared error over all training examples (1/m) and to simplify the derivative during gradient descent 
+        (1/2 cancels the 2 from the square power when differentiating). This makes optimization cleaner and more efficient.
+
+    Even though there are other several cost-functions out there, Mean-Squared Error tends to give the best results consistently, and is one of the most
+    used cost function when it comes to linear regression.
+
+    NOTE:
+        The minimum value of the cost function J(w, b) is ideal because it represents the point where the model's predictions are closest to the actual values 
+        across all training examples. At this point, the total error is lowest, meaning the model has learned the best-fit parameters (w and b) 
+        to generalize from the data. Minimizing J ensures we aren’t just guessing — we’re systematically finding the line or curve that captures the 
+        underlying pattern in the data with the least error.
+    
+    Why there is square in the formula:
+
+        FORMULA: J(w, b) = (1 / 2m) * Σ(i = 1 to m) [(ŷ(i) - y(i))²]
+
+        Ensures positive output: Squaring makes all error values positive so they don't cancel each other out when summed.
+        Penalizes larger errors more: Squaring increases the impact of larger errors, forcing the model to prioritize reducing big mistakes.
+        Enables smooth optimization: The squared error is differentiable, making it suitable for gradient-based optimization like gradient descent.
+    
+    Now, the previous dilemma, is there a way to find good estimates for w, and b so that it helps us produce minimum value for the function J(w,b)?
+        -> Yes, there is a mathematical tool that is used across the field of machine learning (no matter the level of model), it is called as 
+           gradient descent.
+
+Gradient Descent:
+    Gradient Descent is an iterative optimization algorithm used to find the minimum of a function by moving in the direction of the steepest descent,
+    as defined by the negative of the gradient. At each step, it updates the parameters (like w and b) slightly in the opposite direction of the
+    gradient of the cost function with respect to those parameters. This process continues until the algorithm converges — meaning further updates no
+    longer significantly reduce the cost.
+
+    Gradient Descent can be used to reduce the cost function for any model, not only linear regression.
+    Imagine you have some function J(w,b), and you want Min(w,b) J(w,b):    
+
+    Outline:
+        1. Start with some w,b (set w = 0, b = 0) [Here, We wouldn't care for the initial value for w, and b so setting 0 is a good choice]
+        2. Keep changing w, and b to reduce J(w,b).
+        3. Until we settle at or near a minimum
+
+        NOTE: For some functions where it doesn't graph a bow or a hammock shape, there is a possibility to have more than one minimum.
+    
+    Example (Hill to Valley Analogy):
+        Imagine you're standing on a foggy mountain hill with no visibility, and your goal is to reach the lowest valley — the minimum of the cost function.
+        You can’t see the path, but you can feel the slope beneath your feet. So, you take a small step downhill in the steepest direction.
+        Then, you reassess the slope and take another small step. This continues until you reach a point where the ground feels flat — you've likely
+        reached the bottom of the valley, which is the local minimum.
+
+        If you take large steps (i.e., large learning rate), you might overshoot and bounce around without settling.
+        If your steps are too small, it will take forever to reach the valley. Also, depending on where you start, you might land
+        in different valleys (local minima), especially if the terrain (cost surface) has multiple dips. Gradient Descent carefully tunes
+        each step to reach the nearest low point, ideally the global minimum.
+
+    Gradient Descent Algorithm:
+        FORMULA:
+        Repeat until convergence:
+            For w:
+                w := w − α * ∂/∂w(J(w, b))
+                Where:
+                    w = weight parameter
+                    α (alpha) = learning rate (step size),
+                                A small positive number between 0 and 1, it controls how big of a step you take downhill, if alpha is very large then
+                                in response the model with try to aggressively descent heavily downwards, and if alpha is very small then it will take
+                                very small steps to go downhill.
+                    J(w, b) = cost function
+                    ∂J(w, b) / ∂w = partial derivative of the cost function with respect to w (i.e., how much J changes as w changes)
+                    w := means "the value of w is updated as"
+                
+            For b:
+                b := b - α * ∂/∂b(J(w, b))
+                Where:
+                    All the variables are same but ∂b is introduced as now we are differentiating with respect to b.
+
+        NOTE: One important detail is that, we have to simultaneously update w and b, which is clearly shown in the formula with ":=" sign.
+         
+        Correct: Simultaneous Update
+            temp_w = w - a * d/dw J(w,b)
+            temp_b = b - a * d/db J(w,b)
+            w = temp_w
+            b = temp_b
+
+            Here, the old pre-updated value of w is passed into the temp_b formula, only when both the previous values are calculated then we update their
+            values.
+        
+        Incorrect: Non-Simultaneous Update
+            temp_w = w - a * d/dw J(w,b)
+            w = temp_w
+            temp_b = b - a * d/db J(w,b)
+            b = temp_b
+            
+            Here, new value of w, was updated before updating the previous value of b, hence the new value of w is sent to temp_b making incorrect calculation.
+    
+        NOTE: If in the future, when working with gradient descent you need non-simultaneous update, then it is not gradient descent rather it is another
+              algorithm being used. Hence, For gradient descent the above correct simultaneous update is the correct implementation.
+        
+    EXAMPLE:
+        Gradient descent works by evaluating the slope of the cost function at a given point and then updating the parameter in the direction
+        that reduces the cost. Suppose you have a cost function J(w) shaped like a bowl, and you're standing at a random point on this curve.
+        If you compute the derivative at that point, it tells you the slope of the function — how steep the function is and in what direction
+        it increases. Based on that:
+
+        If dJ(w)/dw > 0 (positive slope):
+            The function is increasing, so gradient descent moves left, i.e., w := w − α · (dJ(w)/dw) results in a smaller w.
+
+        If dJ(w)/dw < 0 (negative slope):
+            The function is decreasing, so gradient descent moves right, i.e., w := w − α · (dJ(w)/dw) results in a larger w.
+
+        If dJ(w)/dw = 0:
+            The slope is flat; you're likely at a minimum. No further update is needed.
+
+        The learning rate α is a positive constant that scales how large each update step is. If α were negative, you’d move in the wrong direction — 
+        climbing uphill instead of descending. That’s why α must be positive: it guarantees the algorithm moves against the gradient, downhill
+        toward the minimum. The size of α also affects the speed and stability of convergence — too large may overshoot, too small may take too long.
+        These updates continue iteratively until the derivative becomes close to zero, indicating convergence at or near the cost function’s minimum.
+
+    NOTE:
+        Near a local minimum,
+            1. Derivative becomes smaller
+            2. Update steps become smaller
+
+        Hence, It can reach minimum without decreasing learning rate.
+    
+    Now, generalizing gradient descent algorithm to make the application much simpler with a general formula.
+    For the below derivation AI is used to use correct formatting, but human testing was done to verify all the equations.
+    
+    General Gradient Descent Update Rules
+        The general form of gradient descent updates for parameters w (weight) and b (bias) is:
+
+        For w: w := w - alpha * (∂/∂w J(w,b))
+
+        For b: b := b - alpha * (∂/∂b J(w,b))
+        where:
+            alpha = learning rate,
+            J(w,b) = cost function (mean squared error),
+            ∂/∂w J(w,b) = partial derivative of J w.r.t. w,
+            ∂/∂b J(w,b) = partial derivative of J w.r.t. b.
+
+        Step 1: Define the Cost Function J(w,b)
+            For linear regression, the cost function is the Mean Squared Error (MSE):
+                J(w,b) = (1/(2m)) * sum from i=1 to m of [ ( f_wb(x_i) - y_i )^2 ]
+
+                Why 1/(2m)? The 1/m averages the error over all examples, and the 1/2 simplifies derivatives.
+
+        Step 2: Compute ∂/∂w J(w,b)
+            We find how J(w,b) changes with w:
+                ∂/∂w J(w,b) = ∂/∂w [ (1/(2m)) * sum (f_wb(x_i) - y_i)^2 ]
+                Using the chain rule: derivative of (something)^2 is 2(something)derivative of something.
+
+                Here, something = f_wb(x_i) - y_i, and ∂/∂w f_wb(x_i) = x_i (since f_wb(x_i) = w*x_i + b).
+                So:
+                    ∂/∂w J(w,b) = (1/m) * sum from i=1 to m of [ (f_wb(x_i) - y_i) * x_i ]
+
+        Interpretation: The weight update depends on the prediction error scaled by the input feature value.
+
+        Step 3: Compute ∂/∂b J(w,b)
+            Similarly for b:
+                ∂/∂b J(w,b) = ∂/∂b [ (1/(2m)) * sum (f_wb(x_i) - y_i)^2 ]
+                Again using chain rule, and since ∂/∂b f_wb(x_i) = 1:
+                ∂/∂b J(w,b) = (1/m) * sum from i=1 to m of [ f_wb(x_i) - y_i ]
+
+        Interpretation: The bias update depends only on the average error across all examples.
+
+        Final Gradient Descent Updates
+            For w: w := w - alpha * [ (1/m) * sum (f_wb(x_i) - y_i)*x_i ]
+
+            For b: b := b - alpha * [ (1/m) * sum (f_wb(x_i) - y_i) ]
+
+    Conclusion:
+        As we have seen before, we know gradient descent algorithm can lead us to local minimum, where we follow a step to the steepest minimum that is in
+        the nearby region. But, with the use of cost function the multiple dips in a region is normalized to a bowl shape (as we have seen in Mean Squared Error),
+        thereby removing the chance of a local minimum and creating a global minimum findable from any point in the region.
+
+        The gradient descent discussed above is called as Batch gradient descent. Each step of gradient descent uses all the training examples.
+        

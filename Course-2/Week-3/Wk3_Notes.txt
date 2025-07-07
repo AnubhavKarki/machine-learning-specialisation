@@ -1,0 +1,356 @@
+Week 3
+
+Most of the time when working with machine learning models, we may face some challenges to solve problems. What tends to happen is that
+there are a lot of steps that one could try when facing similar situations.
+EXAMPLE:
+    1. Get more training examples
+    2. Try smaller sets of features
+    3. Try getting additional features
+    4. Try adding polynomial features
+    5. Try decreasing Lambda (Regularization parameter)
+    6. Try increasing Lambda
+
+Sometimes the steps may work out, sometimes it may not. So, we need to be aware of the best possible decisions we could make every time we face
+challenges with out machine learning models.
+
+Machine Learning Diagnostics:
+    Diagnostic:
+        A test that you run to gain insight into what is and isn't working with a learning algorithm, to gain guidance into improving its performance.
+        It can take tome to implement but doing so can be a very good use of your time.
+    
+    Evaluating a model:
+        70-30 rule:
+            Instead of using the whole data set, we could simply break the data set into two parts, where first part would contain 70% of the data
+            and is called as training set, where as the 30% of the remaining data would be the testing set, which would be used to test the model.
+
+            m_train = no. training examples
+            m_test  = no. test examples
+
+            In Linear Regression:
+                This is what the Training-test procedure for linear regression (with MSE) would look like:
+                    FORMULA:
+                        Fit parameters by minimizing cost function J(w,b):
+                            J(W,b) = [1/2m_train Summation i=1 to m_train (f_wb(x^(i)) - y^(i))^2 + lambda/2*m_train Summation i = 1 to n w_j^2]
+
+                Compute training error:
+                    FORMULA:
+                        J(W,b) = 1/2*m_train [Summation i=1 to m_train (f_wb(x_train^(i)) - y_train^(i))^2]
+                    NOTE: The training error does not contain the regularization term.
+                        
+                Compute test error:
+                    FORMULA:
+                        J(W,b) = 1/2*m_test [Summation i=1 to m_test (f_wb(x_test^(i)) - y_test^(i))^2]
+                    NOTE: The testing error also does not contain the regularization term.
+
+                NOTE:
+                    Regularization is applied during training to help the model generalize better by penalizing large or complex weights, which reduces 
+                    overfitting. This penalty is included as part of the cost function that the training process minimizes to update the model’s parameters.
+                    However, when evaluating the model’s performance—whether on the training set or on the test set—the regularization term is excluded
+                    from the error calculation. This is because evaluation aims to measure the model’s actual predictive accuracy without any artificial
+                    penalty, reflecting how well the model fits the data rather than how complex or simple the model is. In short, regularization guides 
+                    the training process but is not part of the performance metrics used for assessing the model.
+
+            In Classification:
+                This is what the Training-test procedure for logistic regression () would look like:
+                    FORMULA:
+                        Fit parameters by minimizing cost function J(w,b):
+                            J(w,b) = 
+                                    -1/m_train 
+                                        Summation i=1 to m_train [
+                                            y^(i)log(f_wb(X^(i)) + (1-y^(i))log(1-f_wb(X^(i))))] + lambda/2m_train Summation i=1 to n w_j^2
+
+                Compute training error:
+                    FORMULA:
+                        J(w,b) = 
+                            -1/m_train Summation i=1 to m_train [y_train^(i)log(f_wb(X_train^(i)) + (1-y_train^(i))log(1-f_wb(S_train^(i))))]
+                    NOTE: The training error does not contain the regularization term.
+                        
+                Compute test error:
+                    FORMULA:
+                        J(w,b) = 
+                            -1/m_test Summation i=1 to m_test [y_test^(i)log(f_wb(X_test^(i)) + (1-y_test^(i))log(1-f_wb(S_test^(i))))]
+                    NOTE: The testing error also does not contain the regularization term.
+            NOTE:
+                In logistic regression, rather than computing the training and testing error, another better alternative is to get the
+                fraction of the test set and the fraction of the train set that the algorithm has misclassified.
+                
+                y-estimate = {
+                                1 if f_wb(x^(i) >= 0.5)
+                                0 if f_wb(x^(i) < 0.5)
+                            }
+                count y-estimate != y
+                J_test(W,b) is the fraction of the test set that has been misclassified.
+                J_train(W,b) is the fraction of the train set that has been misclassified.
+    
+As we know, once parameters w, and b are fit to the training set, the training error J_train(w,b) is likely lower than the actual
+generalization error.
+
+J_test(w,b) is better estimate of how well the model will generalize to new data compared to J_train(w,b).
+
+    Model selection (choosing a model):
+        1. f_wb(X) = w_1*x + b                                  -> w1, b1 -> J_test(w1, b1)
+        2. f_wb(X) = w_1*x + w_2*x^2 + b                        -> w2, b2 -> J_test(w2, b2)
+        3. f_wb(X) = w_1*x + w_2*x^2 + w_3*x^3 + b              -> w3, b3 -> J_test(w3, b4)
+        .....                                                   -> ....
+        10. f_wb(X) = w_1*x + w_2*x^2 + .... + w_10*x^10 + b    -> w10, b10 -> J_test(w10, b10)
+
+        We may keep doing the above until we get a really well J_test among the 10-th order polynomials.
+        Suppose, if the 5-th (J_test(w5, b5)) order polynomial was the one producing the lowest value for the cost function J, then we can simply pick that
+        model. But,...
+        The problem: J_test(w5, b5) is likely to be an optimistic estimate of generalization error (i.e., J_test(w5, b5) < generalization error).
+        Because an extra parameter d (degree of polynomial) was chosen using the test set.
+
+        Hence, w, and b would be an overly optimistic estimate of generalization error on training data.
+        This procedure is flawed and not recommended.
+
+        But what is recommended is:
+            Training Set - Cross Validation Set - Test Set:
+                Now, we split our data into three sets, training set, cross-validation set, and testing set.
+                Where 60% of the data would be in the training set, 20% of the data cross-validation set, and 20% of the data into the testing set.
+                Where;
+                    Training Set = (x^(m_train), y^(m_train))
+                    C-V Set = (x_cv^(m_cv), y_cv^(m_cv))
+                    Testing Set = (x_test^(m_test), y_test^(m_test))
+                    m = number of training example for particular set of data.
+        
+            The cross-validation is the extra set, which is used to check the validity / accuracy of the model. It is also called as validation set,
+            development set, or even dev set.
+        
+            Now, we compute the same training, cross-validation and testing error without the regularization term.
+    
+        Now, we can use this technique to pick a model with better generalization, where we pick a model with the lowest cross-validation error.
+        Finally, to report out the generalization error of the data, we would use the third set, namely testing set to check the model's performance in
+        real world scenario.
+    
+    In short:
+        Cross-validation improves model selection by preventing overly optimistic estimates of generalization error. If we only split data into 
+        training and test sets, we risk choosing model complexity (like polynomial degree) based on test performance, which biases the test error
+        to appear lower than it truly is. Instead, with a three-way split—training, cross-validation (CV), and test sets—we train models on the 
+        training set, choose the best-performing model using CV error (not test error), and finally evaluate the true generalization error on the 
+        untouched test set. This approach ensures the test set remains an unbiased, final check of real-world performance, while the CV set helps 
+        guide model selection more reliably.
+
+Recall:
+    Bias: Underfit
+    Variance: Overfit
+    Goal: Find the sweet spot that minimizes both
+
+    So combining the above example, with Bias and Variance, a good way to estimate if the model is well generalized enough is by looking at
+    what the bias/variance for each model says. If the model has J_train and J_cv very high when d = 1, and when d = 2, J_tran and J_cv is lower,
+    and finally when d (Degree of polynomial) = 4, J_train is low and J_cv is high, then we can conclude that the model is generalizing well enough
+    when the model was using second order polynomial and select that model.
+
+Diagnosing bias and variance:
+    How do you tell if your algorithm has a bias or variance problem?
+        1. High Bias (underfit):
+            J_train will be high (J_train similar to J_cv)
+        
+        2. High Variance (overfit):
+            J_cv >> J_train             [Double greater than means, much greater than in mathematics]
+            (J_train may be low)
+        
+        3. High Bias and High Variance:
+            J_train will be high and J_cv >> J_train
+
+Regularization in Bias and Variance:
+    When using polynomial regression, increasing the degree d of the polynomial increases the model's flexibility. A very low degree 
+    like d = 1 (linear) leads to high bias and underfitting, because the model is too simple to capture the complexity in the data.
+    On the other hand, very high-degree polynomials cause the model to fit the training data too closely, resulting in high variance and overfitting.
+    The sweet spot lies somewhere in between — a moderate d where bias and variance are balanced.
+
+    Regularization helps control this trade-off. When the regularization parameter λ (lambda) is set to zero, the model is allowed to overfit,
+    leading to high variance (mirror image of high-degree polynomial). As λ increases, the model becomes simpler, reducing variance but 
+    increasing bias. When λ is too large, the model becomes too constrained, similar to a low-degree polynomial, resulting in high bias
+    and underfitting. Hence, just like selecting the right d, finding the right λ is crucial to minimize both bias and variance.
+
+Establishing a baseline level of performance:
+    What is the level of error you can reasonably hope to get to?
+        1. Human Level Performance: If the model is trained to recognize image, and Human vs model to validate the model is performed, and model is
+                                    only worse by little bit than humans, then the model is sufficiently good enough.
+        2. Competing algorithms performance
+        3. Guess based on experience
+    
+    Another way to estimate this is by, looking at the:
+        1. Baseline Performance: The actual performance used to validate a models accuracy.
+        2. Training error (J_train): The error produced by the model during training.
+        3. Cross Validation error (J_cv): The error observed during the cross-validation of the model.
+
+        So if the gap between Baseline and Training error is small but the gap between Training and Cross-validation error is big then we can
+        conclude that the model has high variance, where as if its the opposite then the model has high bias.
+        But, if both the gaps have high difference, then the model has both high bias and high variance (highly unlikely situation) this simply means
+        the model overfits some part of the data and underfits the rest.
+
+Learning Curve:
+    The amount of experience the model has, it means how many training examples it gets to experience in the process.
+    Intuition: J_cv(W,b) decreases over increase in m_train (training set size), where as J_train(W,b) will increase as increase in the size of the
+    training set. But overall, the cross-validation error would still be higher, as even it decreases, it initially starts way higher than the
+    test error, and decreases to a point that is still greater than what the J_train(W,b) would have been over that same number of samples.
+
+    High Bias: If we increase the size of the training set then J_train(W,b) would flatten out over the increase in examples because the model is not
+               clever enough to spot patterns or generalize it just is dumb enough to be biased on its learning and follow a flatter path.
+
+               If a learning algorithm has high bias, then just increase in the size of the training examples may not help at all.
+    
+    High Variance: If we increase the size of the training set then J_train(W,b) would decrease by a lot over the increase in examples because the model
+                   is clever enough to spot all the specialized pattern to each and every data point and hence making the model overfit.
+
+                   Here, J_train even could perform better than human level performance, indicating its specialty in the training data.
+                   If a learning algorithm suffers from high variance, getting more training data is likely to help.
+
+Neural Networks and Bias and Variance:
+    Neural networks, especially large ones, are typically low bias models.
+        Due to their high capacity (many layers and neurons), they can quickly learn complex patterns in the training data.
+        This makes them highly flexible, reducing underfitting.
+
+    However, this flexibility comes at a cost:
+        Large networks are prone to high variance, meaning they may overfit the training data and fail to generalize well to unseen examples.
+        To balance this tradeoff:
+            Use techniques like regularization, dropout, or early stopping to reduce variance while maintaining the model’s ability to capture complex patterns.
+
+    The following are some steps one can follow to build a well-rounded model:
+        1. Diagnose High Bias (Underfitting)
+            Ask: Does the model perform well on the training set?
+                No → Training error is high → Likely high bias
+                    The model is too simple to capture the patterns in the data.
+                    Solution: Use a larger or deeper network, reduce regularization, or increase polynomial degree.
+                Yes → Model likely has low bias
+
+        2. Diagnose High Variance (Overfitting)
+            Ask: Does the model perform well on the cross-validation set?
+                Yes → Model does well on both training and validation → Model is likely well-balanced
+                No → High training performance but poor validation performance → Likely high variance
+                    The model fits training data too closely and fails to generalize.
+                    Solution: Use regularization, gather more data, or simplify the model.
+
+        Keep going round and round from 1-2 and vice versa, and finally the model would be good enough to declared as a well-rounded model.
+    
+        NOTE: This process may make a neural network very powerful, but it also has a consequence of using high computational power.
+            Also, another consequence is to gather more data, where we only have limited data available to actually make a good network.
+    
+    A large neural network will usually do as well or better than a smaller one so long as regularization is chosen appropriately.
+
+    CODE:
+        layer_n = Dense(units=N, activation='activation function', kernel_regularizer = L2(0.01))   -> Ridge Regularization
+
+Iterative Process of developing a Machine Learning System:
+    1. Choose Architecture (model, data, etc...)
+    2. Train the model
+    3. Diagnostics (Bias, Variance, and Error Analysis)
+    4. Keep Iterating 1-3 until a well-rounded model is formed.
+
+    When it comes to diagnostics, Bias and Variance are the key measures that should be evaluated, but the term
+    error analysis is also another way to keeping the model in check.
+    
+    Error Analysis:
+        Error analysis is a process used to understand and improve model performance by examining misclassified examples. 
+        Suppose we have 5,000 examples in a cross-validation set and the algorithm misclassifies 500 of them. 
+        We can randomly select a smaller subset (e.g., 100 examples) for manual inspection. These examples are then 
+        categorized based on traits like deliberate misspellings (e.g., “w4tches”), unusual routing patterns,
+        phishing attempts, or image-based spam. For instance, 3 examples had misspellings, 7 had suspicious routing,
+        18 were phishing-related, and 5 used embedded images. This analysis helps identify patterns of failure and 
+        can guide improvements such as adding new features, collecting more relevant data, or refining preprocessing steps.
+    
+        Error analysis involves manually reviewing a subset of misclassified cross-validation examples 
+        (e.g., 100 out of 500) to identify patterns or categories of errors.
+
+
+    Adding Data:
+        Adding more data to the model of anything, can be slow and expensive. Instead, more data of the types where
+        error analysis has indicated it might help is a better option.
+
+        Beyond getting brand-new training examples (x,y) another technique can be extremely helpful when it comes to
+        working with images, audios, and videos is data augmentation.
+
+        Data Augmentation:
+            Data Augmentation is the process of creating new training examples by modifying existing ones. 
+            This helps improve model generalization by exposing it to a wider variety of inputs. For example, 
+            in image classification, one might rotate, flip, add noise, or adjust brightness of an image to generate variants.
+            In NLP, it could involve synonym replacement or paraphrasing. This technique is especially useful 
+            when data is limited, reducing overfitting and improving performance on unseen data.
+        
+        Data Synthesis:
+            Creating new training examples using artificial inputs, such as through simulation or
+            generative models, to expand or balance the dataset.
+        
+        Conventional Model-Centric Approach:
+            Improving model performance by modifying model architecture, tuning hyperparameters, or optimizing 
+            training techniques.
+
+        Data Centric Approach:
+            Improving performance by focusing on the quality, consistency, and richness of data—fixing labels,
+            reducing noise, or enhancing features—without altering the model.
+
+Transfer Learning:
+    Transfer learning involves taking a model trained on a large dataset for one task and adapting it to a different
+    but related task. This is especially useful when the new task has limited data. Typically, the early layers 
+    (which learn general features) are reused, and the later layers are fine-tuned to the new problem.
+
+    Imagine a large neural network trained to classify animals using a dataset with millions of labeled images — dogs,
+    cats, birds, elephants, etc. The model learns to detect edges, textures, shapes, and general animal features in 
+    its early layers, and specific animal details in its later layers.
+
+    Now suppose you’re working on a new task: classifying specific types of rare medical X-ray images — say, identifying
+    bone fractures. You only have a few thousand labeled X-ray images, not nearly enough to train a deep network from 
+    scratch.
+
+    Instead of starting over, you take the pre-trained animal classifier and reuse the early layers that have already
+    learned to detect edges and patterns. These visual features are also relevant to medical images. 
+    You then replace and retrain the last few layers on your X-ray dataset, allowing the model to adapt to the 
+    specifics of medical image classification.
+
+    This process is efficient, reduces the need for large datasets, and often improves performance on niche tasks.
+
+    The above is a combination of supervised pre-training, where you train a model on related task and then fine 
+
+    Steps:
+        1. Download neural network parameters pretrained on a large dataset with same input type (e.g., images, audios,
+            text) as your application (or train your own).
+        
+        2. Further train and fine tune the network on your own data.
+
+Full cycles of a machine learning project:
+    1. Define project
+    2. Define and collect the data
+    3. Training, error analysis and iterative improvement.
+    4. Deploy, monitor and maintain the system
+
+Precision and Recall
+    Precision and recall are important metrics for evaluating classification models, especially when dealing with imbalanced datasets.
+
+    Precision tells us how many of the items we predicted as positive are actually positive.
+        Formula: Precision = True Positives / (True Positives + False Positives)
+
+    Recall tells us how many of the actual positive items we correctly identified.
+        Formula: Recall = True Positives / (True Positives + False Negatives)
+
+    Precision vs Recall Trade-off
+        There is usually a trade-off between precision and recall. Improving one can lead to a drop in the other. The balance depends on the
+        application and which type of error is more acceptable.
+
+        Example: Email Spam Detection
+            If your spam filter is strict (only marks an email as spam when very confident), it has high precision (most predicted spam are actually spam),
+            but low recall (many actual spam emails are missed).
+
+            If your spam filter is loose (flags anything suspicious), it has high recall (catches most spam), but low precision
+            (also flags non-spam emails as spam).
+
+    In spam detection, low precision might be annoying (missing good emails), but in medical diagnosis, low recall might be dangerous 
+    (missing a disease). So the choice depends on the context.
+
+F1 Score
+    The F1 score is the harmonic mean of precision and recall. It provides a single metric that balances both, especially useful when you care
+    equally about precision and recall and want to compare models with different trade-offs.
+
+    Formula:
+        F1 Score = 2 * (Precision * Recall) / (Precision + Recall)
+
+    Why F1 Score Helps
+        If a model has high precision but low recall, or vice versa, the F1 score will be low. It only gives a high value when both precision and
+        recall are reasonably high, making it a fair way to compare models.
+
+        For example:
+            Model A: Precision = 0.9, Recall = 0.4 → F1 ≈ 0.55
+            Model B: Precision = 0.6, Recall = 0.6 → F1 = 0.6
+
+    Even though Model A has better precision, Model B has a better balance, and F1 score reflects that.
+

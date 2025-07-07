@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "lldb",
+      "request": "launch",
+      "args": [],
+      "cwd": "/Users/anubhavkarki/Programming/Specializations/Machine Learning/Course-1/Week-3",
+      "program": "/Users/anubhavkarki/Programming/Specializations/Machine Learning/Course-1/Week-3/build/Debug/outDebug"
+    }
+  ]
+}

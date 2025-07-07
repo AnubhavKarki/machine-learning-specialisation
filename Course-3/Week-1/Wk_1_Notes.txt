@@ -1,0 +1,159 @@
+Week 1:
+
+Unsupervised Learning:
+    Unsupervised Learning is a type of machine learning where the model learns patterns and structures from data without labeled outcomes.
+    Instead of being told what to predict, it tries to find hidden relationships, groupings, or features within the data on its own. It's 
+    useful when we don’t have clear answers but want the model to explore the data and reveal insights.
+
+Clustering:
+    Clustering is a core idea in unsupervised learning that involves grouping data points based on similarity. The goal is to organize 
+    data into clusters where points in the same group are more alike than those in different groups. It helps uncover structure in data 
+    and is often used when labels aren't available but natural groupings may exist.
+
+    Applications of Clustering:
+        1. Grouping similar news:
+            Clustering helps organize news articles by topic or content, improving recommendation systems and user experience.
+        2. Market segmentation:
+            Businesses use clustering to divide customers into groups based on purchasing behavior, enabling targeted marketing.
+        3. DNA analysis:
+            In bio-informatics, clustering is used to identify gene or protein patterns and classify biological data.
+        4. Astronomical data analysis:
+            Scientists use clustering to detect and categorize celestial objects based on their features and behavior.
+
+K-means Clustering:
+    K-means works by first choosing cluster centroids, like red or blue crosses. Each data point is assigned to the closest centroid.
+    After all points are assigned, the algorithm recalculates each centroid by averaging the points in its cluster. This process repeats—reassigning
+    points and updating centroids—until the clusters no longer change, signaling convergence and stopping the algorithm.
+
+    K-means Algorithm Implementation:
+        Step 1: Randomly initialize K cluster centroids, mu_1, mu_2, ..., mu_K, by selecting K points from the dataset or randomly within the data space.
+
+        Step 2: Assign each data point x_i to the closest centroid based on distance (usually Euclidean distance). This forms K clusters.
+
+        Step 3: For each cluster, recompute the centroid mu_k as the mean of all points assigned to that cluster.
+
+        Step 4: Repeat Steps 2 and 3 until convergence, i.e., when the centroids no longer move significantly or the assignments don’t change.
+    
+    Pseudocode:
+        Initialize centroids mu_1, mu_2, ..., mu_K randomly
+        Repeat:
+            # Assign points to cluster centroids
+            for i = 1 to machine
+                c^(i) = index (from 1 to K) of cluster centroids closes to x^(i)
+                    Mathematically, we are applying the L2-norm (Euclidean Distance):
+                        min_k || x^(i) - mu_k ||^2
+                
+            # Move cluster centroids
+                for k = 1 to K
+                    mu_k := average(mean) of points assigned to cluster K
+
+        Until centroids mu_k do not change or max iterations reached
+
+    Optimization Objective:
+        c^(i) = index (from 1 to K) of cluster centroids closes to x^(i)
+        mu_k = cluster centroid k
+        mu_c^(i) = cluster centroid of cluster to which example x^(i) has been assigned
+    
+        Cost Function:  
+            J(c^(1),....,c^(m), mu_1,...,mu_k) = 1/m Summation i=1 to m ||x^(i) - mu_c^(i)|| ^ 2
+            Value of c and mu that minimizes J(c,mu)
+
+            This cost function is also called as the Distortion function.
+    
+    NOTE: In every single iteration, the distortion functions (cost function) should either go down or stay the same, but never go up, as
+          if ever goes up then it means there is bug in the code because mathematically the value of J can never in the distortion function.
+    
+Initializing K-means:
+    Random Initialization, always choose K < m
+    Randomly pick K training examples.
+    Set mu1, mu2, ... , mu_k equal to these K examples.
+
+    Pseudocode:
+        For i = 1 to N {
+            Randomly initialize K-means for k random examples
+            Run K-means. Get c^(i), ... , c^(m), mu_1, mu2, .... , mu_k
+            Computer cost function (distortion)
+            J(c^(i), .... , c^(m), mu_1, mu_2, .... , mu_k)
+        }
+        Pick set of clusters that gave lowest cost J
+
+Choosing the value of K;
+    Elbow method:
+        The Elbow Method is a practical way to select the optimal number of clusters K in K-means. It works like this:
+            1. Run K-means for various values of K (e.g., 1 to 10).
+            2. For each K, compute the distortion—the average squared distance between each point and its assigned cluster centroid.
+            3. Plot K vs. distortion.
+
+        As K increases, distortion drops. However, after a certain point, the improvement slows down. The point where this drop starts to level off
+        forms an “elbow” in the graph. That elbow is typically the best choice for K.
+            1. Too small K → clusters are broad and may miss structure in the data.
+            2. Too large K → clusters become too specific, capturing noise instead of meaningful patterns.
+
+        The elbow gives a balance between simplicity and capturing the underlying structure.
+
+    NOTE: Often, clustering is used as a step before another task like classification or recommendation. So, the best value of K depends on how 
+          well it helps that final task—not just on finding perfect clusters. The Elbow Method gives a good starting point, but the right K is 
+          the one that works best for your goal.
+
+Anomaly Detection:
+    Anomaly Detection is a technique used to identify rare or unusual patterns in data that do not conform to expected behavior. 
+    These anomalies, or outliers, often indicate critical events like fraud, faults, or security breaches. It's widely used in areas like 
+    finance, healthcare, and cybersecurity to spot abnormal trends without needing labeled data.
+
+    Density Estimation:
+        In anomaly detection, density estimation helps model the normal behavior of data by learning the underlying probability distribution.
+        Once the distribution is learned, data points that fall in low-density regions—where normal examples rarely occur—are flagged as anomalies.
+        This approach is powerful when labeled anomalies are scarce, as it relies only on the patterns of normal data to detect outliers.
+    
+    Gaussian (Normal) Distribution
+        The Gaussian distribution, also known as the normal distribution, is a bell-shaped curve that describes how values are spread around a central mean. 
+        It’s widely used in statistics and machine learning due to its natural fit for many real-world data patterns.
+
+        It is defined by two key parameters:
+            Mean (μ): The central point of the distribution; most values are clustered around this.
+            Standard Deviation (σ): Measures how spread out the data is from the mean. A small σ means values are tightly clustered; a large σ 
+                                    means they are more spread out.
+            Variance (σ²): Gives an overall idea of the spread of the data by averaging the squared distances from the mean.
+                           Think of it as a more stable, smooth version of measuring spread—less sensitive to direction but more to magnitude.
+
+        In anomaly detection, we often model normal data using a Gaussian distribution. Then, any point that lies far from the mean—especially beyond a
+        few standard deviations—is considered an anomaly, since it lies in a low-probability region.
+    
+        Gaussian Distribution Formula:
+            p(x) = (1 / sqrt(2 * pi * sigma**2)) * exp(-((x - mu)**2) / (2 * sigma**2))
+            Where:
+                x = data point
+                mu = mean
+                sigma = standard deviation
+                sigma**2 = variance
+                exp = exponential function
+                pi = 3.14159... (use math.pi in Python)
+    
+    Anomaly Detection Algorithm:
+        1. Choose n features x1, x2, ..., xn that may indicate anomalies.
+        2. Fit parameters mu1, ..., mun and sigma1^2, ..., sigma_n^2 using normal (non-anomalous) training data.
+        3. For a new example x, compute the probability p(x) as the product of the individual Gaussian probabilities:
+            FORMULA: p(x) = p(x1; mu1, sigma1^2) * p(x2; mu2, sigma2^2) * ... * p(xn; mun, sigma_n^2)
+        4. Flag x as an anomaly if p(x) < epsilon, where epsilon is a threshold chosen using a validation set.
+
+    NOTE:
+        When developing a learning algorithm (choosing features, etc..), making decisions is much easier if we have a way of evaluating our learning
+        algorithm.
+
+Anomaly Detection vs Supervised Learning
+    Supervised learning requires a dataset with clearly labeled examples of both normal and anomalous behavior. It works best when:
+        You have a large, balanced dataset with many examples of each class.
+        Anomalies are well-defined and consistent in nature.
+        You're solving tasks like spam detection, disease classification, or fraud detection with plenty of known cases.
+
+    Anomaly detection, on the other hand, is used when:
+        Anomalies are rare, hard to label, or constantly changing in pattern.
+        The dataset mostly contains normal data, and labeling every edge case isn’t feasible.
+        You need to flag anything unusual rather than predict specific known categories.
+
+    When to Prefer:
+        Use supervised learning if you have enough labeled anomalies and want high accuracy on known patterns.
+        Use anomaly detection if anomalies are unpredictable, sparse, or if your priority is to detect novel, unseen behavior.
+
+    In real-world settings (e.g., system failures, security breaches, fraud), anomaly detection often acts as an early warning system—especially when
+    supervised learning isn't practical.

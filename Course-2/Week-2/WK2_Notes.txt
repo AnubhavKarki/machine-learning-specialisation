@@ -1,0 +1,405 @@
+Neural Network Training
+
+Training a Neural Network:
+    1. Create the model:
+        The following code snippet shows the creation of the model.
+        CODE:
+            import tensorflow as tf
+            from tensorflow.keras.models import Sequential
+            from tensorflow.keras.layers import Dense
+
+            model = Sequential([
+                Dense(25, activation='sigmoid'),     # Hidden Layer 1 (ReLU)
+                Dense(15, activation='sigmoid'),                  # Hidden Layer 2 (Tanh)
+                Dense(1, activation='sigmoid'),               # Output Layer (Sigmoid)
+            ])
+        
+    2. Loss and cost functions
+        EXAMPLE:
+            L(f(x), y) = -y*log(f(x)) - (1-y)log(1-f(x))
+            This is the same loss function used for logistic regression. It is also called logistic loss, or binary cross entropy.
+        
+        CODE:
+            from tensorflow.keras.losses import BinaryCrossentropy
+            model.compile(loss = BinaryCrossentropy())
+        
+        J(W,B) = 1/, Summation i = 1 to m L(f(x^(i)), y^(i))
+        Here, W and B are uppercase, because it includes all w_1 to w_i, and b_1 to b_i.
+    
+    3. Gradient Descent:
+        In neural network training, just like linear and logistic regression the third step is to apply gradient descent.
+        Where we simultaneously update the values of w and b, and also calculate their partial derivatives.
+
+        Neural network uses backpropagation to compute derivatives for gradient descent.
+        CODE:
+            model.fit(X,y,epochs=100) <- Where epochs = 100, means 100 iterations.
+    
+    Recommendation:
+        "Use code libraries instead of coding from scratch.", but it is good to understand the implementation (for tuning and debugging).
+    
+Alternative Activation Functions:
+    1. Rectified Linear Unit(ReLU):
+        FORMULA: g(z) = max(0,z)
+        When z < 0, then it is 0 else the value of z.
+    
+    2. Sigmoid Function:
+        FORMULA: g(z) = 1/1+e^-(z)
+        If the value is less than 0.5 then 0, else 1. Perfect for binary classification problem.
+
+    3. Linear Activation Function:
+        FORMULA: g(z) = z
+        Using this can get quite tricky, as when the value is greater than 0 it is simply z, so g == z and if there was no activation function at all.
+    
+Choosing Activation Functions:
+    1. Binary Classification:
+        If the problem at hand is based on binary classification, then using sigmoid activation function makes the perfect sense.
+    
+    2. Regression Problem:
+        If the problem at hand is based on predicting the stock price, then using the linear activation function would make perfect sense.
+        As we need a number and not a class.
+    
+    3. Non-negative Prediction:
+        If the problem at hand is based on the output (y) not being a negative value, then ReLU activation function would make perfect sense.
+    
+    Turns out that ReLU is by far the most chosen activation function for hidden layers in neural networks.
+    This is because it is faster than sigmoid, as we only need to find the max, and don't need any exponentiations.
+    The other reason is, it mostly runs flat, and only not flat when it is greater than 0.
+    And, gradient descent is slowest when we are on a flat surface. Even though, gradient descent is only applied before sigmoid, but still the
+    sigmoid is also calculated later using the gradient of the previous iterations. Hence, slowing the overall process.
+
+    Sigmoid function is mostly used in the output layer for classification problems.
+
+    Better approach:
+        Apply ReLU for all layers except the output layer, where output is linear or sigmoid.
+
+Why do we need activation functions at all?
+    Activation functions introduce non-linearity into a neural network. Without them, no matter how many layers you stack, 
+    the entire model behaves like a single linear transformation. For example, if you use linear activation (or no activation) in 
+    all hidden layers and the output layer, the model is effectively a linear regression, because combining multiple linear operations
+    still results in a linear function.
+
+    Even if you apply a sigmoid (logistic) function only at the output layer, but keep linear activations in all hidden layers, the model
+    becomes equivalent to logistic regression, not a true neural network. The hidden layers don’t learn any complex representations, 
+    and the model can only draw straight-line boundaries. Hence, to capture non-linear patterns and interactions, non-linear activation 
+    functions like ReLU or sigmoid are essential in the hidden layers.
+
+Multiclass Classification:
+    The classification problem where y can take on more than two possible values, but still a discrete number of categories.
+
+Softmax Function
+    Softmax is used in the output layer of multi-class classification problem. It converts raw scores (logits) into probabilities that sum up to 1.
+    Formula for a given class j:
+        Softmax(a(z_j)) = e^(z_j) / (e^(z_1) + e^(z_2) + ... + e^(z_n))
+
+    Where:
+        z_j = Wj . X + bj
+        j = 1....N
+        parameters:
+            w1,w2,.....wn
+            b1,b2,.....bn
+        z_j is the logit (raw score) for class j
+        n is the total number of classes
+        The denominator is the sum of exponentials of all logits.
+        This ensures each output is between 0 and 1, and all outputs add up to 1 — perfect for probabilistic interpretation.
+    
+    NOTE: If we implement softmax regression to a binary classification then it simply performs the same as a logistic regression.
+
+    Loss Function for Softmax:
+        loss(a1,....a_N, y) = {
+                                -log a1; if y = 1
+                                -log a2; if y = 2
+                                -log a3; if y = 3
+                                        ...
+                                -log a_N; if y = N
+                            }
+
+Neural Network with Softmax Output:
+    Previously, when we were doing digit classification, if the digit was 0 or 1, we built a neural network with 25-15-10 units, and the 
+    final layer was determined to produce one of two classes using logistic regression. But here, we have more than 2 classes — suppose
+    10 categories for 10 digits (0-9), hence the output layer would consist of 10 units, i.e., 10 neurons. Logically, we may have other
+    activation functions like Swish, ReLU, or Linear for hidden layers, whereas Softmax would be applied to the output layer.
+
+    Example:
+        Consider a neural network architecture like:
+        Input layer → Dense(25, activation='relu') → Dense(15, activation='relu') → Dense(10, activation='softmax')
+
+        In the output layer with 10 units, each neuron calculates its own score z_i, using its respective weights and bias:
+            FORMULA: z_i = w_i^T * a + b_i      for i = 1 to 10
+        
+        All 10 z values are then passed through the softmax function together to produce probabilities:
+            FORMULA: softmax(z_i) = e^(z_i) / (e^(z_1) + e^(z_2) + ... + e^(z_10))
+        This is a unique property of the softmax layer — unlike other activations (e.g., sigmoid or ReLU) which apply independently to 
+        each neuron's output, softmax treats all 10, z values jointly to generate a probability distribution over the 10 classes. Only one of 
+        them will likely be close to 1, indicating the predicted digit, while the others will be closer to 0.
+
+        This joint behavior is what makes softmax the standard activation function for multi-class classification problems.
+
+    CODE:
+        import tensorflow as tf
+        from tensorflow.keras import Sequential
+        from tensorflow.keras.layers import Dense
+
+        model = Sequential([
+            Dense(units=25, activation='relu'),
+            Dense(units=15, activation='relu'),
+            Dense(units=10, activation='softmax'),      # <- Softmax
+        ])
+
+        #Loss function
+        from tensorflow.keras.losses import SparseCategoricalCrossentropy
+        model.compile(loss = SparseCategoricalCrossentropy())
+
+        NOTE: SparseCategoricalCrossentropy just means the output would be a single class, and not an intermediate of multiple classes.
+    
+        NOTE: There is an even better version to apply SparseCategoricalCrossentropy, which will be covered later.
+
+    Numerical Roundoff Errors:
+        EXAMPLE:
+            x1 = 2.0/10000
+            print(f"{x1:.18f}")
+            Output: 0.000200000000000000
+
+            x2 = 1 + (1/10000) - (1 - 1/10000)
+            print(f"{x2:.18f}")
+            Output: 0.000199999999999978
+
+        We can see how small roundoff value changes the class drastically.
+        When it comes to logistic regression, we get similar equation as above (x2) using its loss function:
+            L(f(x), y): -y*log(a) - (1-y)log(1-a)
+        
+        More accurate loss (in code):
+            loss = -y log(1/1+e^-z) - (1-y)log(1-(1/1+e^-z))
+        
+        CODE:
+            model = Sequential([
+                Dense(units=25, activation='relu'),
+                Dense(units=15, activation='relu'),
+                Dense(units=10, activation='linear'),       <- Set output layer to linear, and not sigmoid
+            ])
+        
+            model.compile(loss = BinaryCrossentropy(from_logits = True))   <- set from_logits = True, this will still apply BinaryCrossentropy
+                                                                to the function. And, logit is simply the variable (z) also known as a link function.
+            model.fit(X,Y, epochs=100)
+                        
+            logit = model(x)
+            f_x = tf.nn.sigmoid(logit)      <- This is how we get the probability once we use linear function in the final layer.
+
+    More accurate implementation of softmax:
+        Softmax regression:
+            (a1,....,a10) = g(z1,...,z10)
+            Loss = L(a,y) = {
+                                -log a1; if y = 1
+                                -log a2; if y = 2
+                                        ...
+                                -log a10; if y = 10
+                            }
+        
+        More accurate:
+            Loss = L(a,y) = {
+                                -log e^z1 / (Summation z = 1 to e^z_n); if y = 1
+                                -log e^z2 / (Summation z = 1 to e^z_n); if y = 2
+                                        ...
+                                -log e^z_n / (Summation z = 1 to e^z_n); if y = n
+                            }
+        
+        CODE:
+            model = Sequential([
+                Dense(units=25, activation='relu'),
+                Dense(units=15, activation='relu'),
+                Dense(units=10, activation='linear'),
+            ])
+            model.compile(loss = SparseCategoricalCrossentropy(from_logits = True))
+            model.fit(X,Y, epochs=100)
+
+            logits = model(X)
+            f_x = tf.nn.softmax(logits)
+        
+        NOTE: This is the version that is numerically accurate, but is similar to the previous code, this one can be tricky to understand.
+
+Multilabel Classification Problem:
+    In multilabel classification, each input can belong to multiple categories at once. For example, an image might contain both a cat and a dog.
+    There are two common approaches to handle this:
+
+    Option 1: Build Three Separate Neural Networks (One for Each Label)
+        This is the simpler approach. You train three independent neural networks, one for each label. Each model is trained to predict only one output.
+        So if your labels are [contains_dog, contains_cat, contains_bird], then you’d train three different binary classifiers. This approach is easy to
+        implement and debug, but it's computationally expensive and can't leverage shared learning across labels.
+
+    Option 2: Build One Neural Network with Three Outputs
+        This is the preferred and more efficient approach. You create one shared network (common hidden layers) with three output units. Each output neuron
+        has a sigmoid activation, and the network is trained with a binary cross-entropy loss per output. For instance, the output vector might be 
+        [0.9, 0.1, 0.8], meaning high confidence for dog and bird, low for cat. This setup allows the network to learn shared features from the data
+        while predicting all labels simultaneously, reducing computation and potentially improving generalization.
+
+        Each output is treated independently — that’s why we use sigmoid, not softmax, since softmax forces the outputs to sum to 1,
+        which is not suitable for multilabel problems.
+
+    In practice, Option 2 is more scalable and better suited for problems with many labels.
+
+Advanced Optimization:
+    The gradient descent algorithm is widely used since the earlier days of neural network. It looks at where the minimum loss or selects the value of 
+    w and b (parameters) in such a way that it minimizes the loss function, and takes gradual steps towards the minimum. But if we for example
+    have a contour plot and we start at the edge of the plot, then the descent would slowly move towards the center ellipse. After frequent steps 
+    in the same direction, at one point, it would be able to find itself in the minimum of the function.
+
+    Now, this is a tedious step when we know we are moving towards the same direction for a lot of iteration, why don't we just increase the learning rate
+    to take much bigger step towards the same direction. Turns out that there is another optimization algorithm that is able to do that. It is called as
+    Adam algorithm.
+
+    In contrast, if we have a larger learning rate, and the gradient descent keeps going back and forth in opposite direction, then why don't we just 
+    decrease the learning rate smartly, if we keep moving back and forth, well this is also automatically catered to by the adam algorithm.
+
+    Adam Algorithm (Adaptive Moment Estimation):
+        This algorithm doesn't use just one learning rate (alpha), rather it uses a different learning rate for every single parameter in the model.
+        So, if we have 10 different features (w's) and as always 1 b, then we would have 11 different learning rate (alpha).
+        Conditions:        
+            1. If (wj or b) keeps moving in the same direction increase alpha(aj).
+            2. If (wj or b) keeps oscillating, reduce alpha(aj).
+    
+        NOTE: This algorithm is much more math heavy and will be covered in the deep learning (This is Machine Learning course) course later on.
+    
+        CODE:
+             model = Sequential([
+                Dense(units=25, activation='relu'),
+                Dense(units=15, activation='relu'),
+                Dense(units=10, activation='linear'),
+            ])
+            model.compile(
+                            optimizer = tf.keras.optimizers.Adam(learning_rate=1e-3),       <- Setting initial learning_rate = 0.001
+                            loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=Training)
+                        )
+            model.fit(X,Y, epochs=100)
+
+        This algorithm is more robust and provides much faster convergence. It is the defacto standard in the Machine Learning world.
+
+Additional Layer Types:
+    All the neural network layers so far have been the dense layer type in which every neuron in the layer gets its inputs from the previous layer.
+    Turns out that is one of the solid ways to produce strong learning algorithms. But, there are some other layer types as well which helps us
+    build some solid models.
+
+    1. Dense Layer (Previously Learnt):
+        Each neuron output is a function of all the activation outputs of the previous layer.
+            EXAMPLE:
+                a2 = g(w.a1 + b)
+            
+    2. Convolutional Layer:
+        Each neuron only looks at part of the previous layer's outputs.
+        But why?
+            1. Faster computation
+            2. Need less training data (less prone to overfitting)
+
+        Used in convolutional neural network.
+
+Backpropagation - A Complete Intuition:
+    1. Forward Propagation – Setting the Stage
+        Forward propagation is the process of passing input data through the neural network to obtain an output.
+        Let’s take a simple neural network:
+            Input layer: 2 features
+            Hidden layer: 2 neurons
+            Output layer: 1 neuron
+
+        Activation function: Sigmoid
+            We initialize weights W1, W2 and biases b1, b2. Then we compute:
+            z1 = W1 · x + b1         → shape (2,) from input (2,) and W1 (2x2)
+            a1 = sigmoid(z1)
+
+            z2 = W2 · a1 + b2         → shape (1,) from a1 (2,) and W2 (2x1)
+            a2 = sigmoid(z2)          → final output
+
+        So, forward prop is a left-to-right flow of computation — input transforms through layers to yield the output a2.
+
+    2. The Need for Backpropagation
+        During training, we compute a loss between a2 (prediction) and y (true label), e.g., using Binary Cross-Entropy:
+        Loss = - ( y * log(a2) + (1 - y) * log(1 - a2) )
+        Now the question is: How do we adjust weights so that next time the prediction is closer to y?
+
+        That’s where Backpropagation comes in — it computes gradients of the loss with respect to each parameter (W and b), so we can update 
+        them via gradient descent.
+
+        Backpropagation flows right to left, because the loss is a function of the output, which depends on previous layers. So we must calculate 
+        derivatives layer-by-layer in reverse.
+
+    3. The Core Idea of Backpropagation
+        Each layer uses the chain rule of derivatives to pass the gradient backward:
+            dL/dW = dL/da · da/dz · dz/dW
+
+        We start with:
+            Derivative of loss with respect to output a2
+            Then propagate gradients backward through the network using intermediate gradients.
+
+            Let’s define:
+                dz2 = a2 - y           # derivative of loss wrt z2
+                dW2 = dz2 · a1.T       # gradient wrt W2
+                db2 = dz2              # gradient wrt b2
+
+                dz1 = (W2 · dz2) * sigmoid'(z1)    # chain rule applied
+                dW1 = dz1 · x.T
+                db1 = dz1
+
+        We now use these gradients to update weights:
+            W2 = W2 - learning_rate * dW2
+            b2 = b2 - learning_rate * db2
+            W1 = W1 - learning_rate * dW1
+            b1 = b1 - learning_rate * db1
+    4. Worked Example
+        Let’s walk through one iteration with real numbers:
+        Given:
+            Input: x = [1, 2]
+            Target: y = 1
+            Initial weights:
+            W1 = [[0.1, 0.2], [0.3, 0.4]]     # shape (2x2)
+            b1 = [0.01, 0.02]                 # shape (2,)
+            W2 = [0.5, 0.6]                   # shape (1x2)
+            b2 = 0.03
+
+        Forward Prop:
+            z1 = W1·x + b1 = [0.1*1+0.3*2+0.01, 0.2*1+0.4*2+0.02] = [0.71, 1.02]
+            a1 = sigmoid(z1) = [0.670, 0.735]
+
+            z2 = W2·a1 + b2 = 0.5*0.670 + 0.6*0.735 + 0.03 = 0.7455
+            a2 = sigmoid(z2) ≈ 0.6783
+
+        Loss:
+            Loss = - (1 * log(0.6783)) ≈ 0.388
+
+        Backprop:
+            dz2 = a2 - y = 0.6783 - 1 = -0.3217
+            dW2 = dz2 * a1 = [-0.3217 * 0.670, -0.3217 * 0.735] = [-0.2155, -0.2366]
+            db2 = dz2 = -0.3217
+
+            dz1 = (W2 · dz2) * sigmoid'(z1)
+                = [0.5, 0.6] * -0.3217 = [-0.1608, -0.1930]
+                sigmoid'(z1) = a1*(1-a1) = [0.221, 0.194]
+                dz1 = [-0.1608*0.221, -0.1930*0.194] = [-0.0355, -0.0374]
+
+            dW1 = dz1 · x = [[-0.0355, -0.0374] * [1], [-0.0355, -0.0374] * [2]] = 
+                = [[-0.0355, -0.0374], [-0.0710, -0.0748]]
+            db1 = dz1 = [-0.0355, -0.0374]
+
+        Parameter Update:
+            Assuming learning rate = 0.1:
+            W2 = W2 - 0.1 * dW2 = [0.5, 0.6] - 0.1 * [-0.2155, -0.2366] = [0.5216, 0.6237]
+            b2 = 0.03 - 0.1 * (-0.3217) = 0.0621
+
+            W1 = [[0.1, 0.2], [0.3, 0.4]] - 0.1 * [[-0.0355, -0.0374], [-0.0710, -0.0748]] 
+            = [[0.1035, 0.2037], [0.3071, 0.4075]]
+            b1 = [0.01, 0.02] - 0.1 * [-0.0355, -0.0374] = [0.0136, 0.0237]
+
+    5. Summary
+        Forward Prop computes predictions from input to output.
+
+        Backpropagation computes gradients of the loss w.r.t. each weight by flowing gradients right to left.
+
+        It uses the chain rule to propagate partial derivatives through the network.
+
+        It enables weight updates via gradient descent to reduce the loss.
+
+        Backprop is the core of neural network learning, and understanding how gradients flow backward layer-by-layer gives you full control 
+        over training and debugging your models.
+
+    Analogy:
+        Backpropagation in neural networks is like tracing a wrong answer your friend gave you back to a typo in a book he read. 
+        Your friend (the output) seems wrong, but the mistake really came from the book (the layers before), which had a typo (the weights). 
+        To fix the future answers, you don’t just blame the friend — you trace the error step by step back to the real cause and fix it. 
+        This tracing back is powered by the chain rule, which helps measure how much each part (like the book’s typo) contributed to 
+        the final mistake, so the network can adjust the right things and improve.

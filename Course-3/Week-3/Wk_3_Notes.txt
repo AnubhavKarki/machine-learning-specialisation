@@ -1,0 +1,187 @@
+Week - 3
+
+Reinforcement Learning:
+    Reinforcement Learning (RL) is a type of machine learning where an agent learns to make decisions by interacting with an environment to maximize
+    cumulative rewards. Unlike supervised learning, RL relies on feedback from actions rather than labeled data. Key components include the agent,
+    environment, states, actions, and rewards. The agent uses policies to decide actions, learns from rewards via value functions, and often uses
+    techniques like Q-learning or policy gradients. RL is widely applied in robotics, game playing, and autonomous systems.
+
+    Mars Rover Example:
+        In Reinforcement Learning, the Mars rover example illustrates how an autonomous agent learns to navigate and operate in an unknown environment.
+        The rover is the agent, and Mars’ surface is the environment. At each time step t, the rover observes its current state S_t
+        (e.g., location, sensor readings), then chooses an action A_t (e.g., move forward, turn, collect sample). After executing the action, it receives
+        a reward R_{t+1}, which quantifies the immediate benefit (like reaching a target or avoiding hazards).
+
+        The rover’s objective is to learn a policy—a strategy mapping states to actions—that maximizes the Return G_t, representing the total future rewards
+        from time t onwards. Because future rewards might be less valuable than immediate ones, we use a discount factor γ (between 0 and 1) to weigh rewards:
+            G_t = R_{t+1} + γ * R_{t+2} + γ² * R_{t+3} + ... = Σ (k=0 to ∞) γ^k * R_{t+k+1}
+            Where:
+                G_t = Return at time t (total discounted future rewards)
+                R_{t+1}, R_{t+2}, ... = rewards received at future time steps
+                γ (0 ≤ γ ≤ 1) = discount factor that prioritizes immediate rewards over future rewards
+
+        Here, G_t is the sum of all discounted future rewards, helping the rover prioritize near-term gains while still considering long-term success.
+        Through trial, error, and updating its policy based on rewards, the rover learns to make better decisions, enabling safe and efficient 
+        exploration of Mars.
+
+    Policy:
+        In Reinforcement Learning, a policy is the agent's strategy for deciding actions based on the current state. It defines the agent’s behavior
+        at every step. Formally, a policy is denoted as:
+            π(a | s) = P(A_t = a | S_t = s)
+
+        This represents the probability of taking action a when in state s.
+        There are two types of policies:
+            Deterministic Policy: Always chooses the same action for a given state.
+                Given as: π(s) = a
+
+            Stochastic Policy: Assigns probabilities to actions in each state, useful for exploration.
+                Given as: π(a | s) = probability of taking action a in state s
+
+        The goal of RL is to learn an optimal policy π* that maximizes the expected return (G_t) from any state. The agent evaluates and improves its
+        policy using techniques like value functions (e.g., V(s), Q(s, a)) and policy gradients.
+        Policies are central to how an RL agent learns and makes decisions — they are what the agent is ultimately trying to optimize.
+    
+    Markov Decision Process (MDP)
+        A Markov Decision Process (MDP) is the mathematical framework used in Reinforcement Learning to model environments where outcomes are partly random
+        and partly under the control of an agent. It assumes the Markov property, meaning the future state depends only on the current state and action,
+        not on the sequence of past states.
+
+        Components of an MDP:
+            S: Set of states
+            A: Set of actions
+            P(s' | s, a): Transition probability – probability of reaching state s' from state s by taking action a
+            R(s, a): Reward function – expected reward for taking action a in state s
+            γ (Gamma): Discount factor (0 ≤ γ ≤ 1) – determines the importance of future rewards
+            π(a | s): Policy – defines the agent’s behavior
+
+        Value Function in MDP
+            The state-value function V^π(s) under a policy π gives the expected return starting from state s and following π:
+                V^π(s) = E[ G_t | S_t = s ] = E[ Σ (from k=0 to ∞) γ^k * R_{t+k+1} | S_t = s ]
+                Where:
+                    V^π(s) = value of state s under policy π
+                    E[ ] = expectation
+                    γ = discount factor
+                    R_{t+k+1} = reward received k steps in the future
+                    G_t = return starting from time t
+
+            Example – Grid World Rover
+                Imagine a Mars rover in a 3x3 grid. Each cell is a state (S). The rover can move in four directions (A = {up, down, left, right}).
+                Some cells give positive rewards (e.g., reaching a science target), others negative (falling into a crater). The rover doesn’t always land 
+                exactly where it intends (transition probabilities), and the reward depends on the state-action pair. The rover’s goal is to learn a
+                policy π that tells it which direction to move from each cell to maximize the expected long-term reward.
+
+    State-Action Value Function (Q-function)
+        In Reinforcement Learning, the State-Action Value Function, or Q-function, denoted as Q^π(s, a), gives the expected return (cumulative future reward)
+        of taking action a in state s and then following a policy π thereafter.
+        Formula:
+            Q^π(s, a) = E[ G_t | S_t = s, A_t = a ]
+                   = E[ Σ (k = 0 to ∞) γ^k * R_{t+k+1} | S_t = s, A_t = a ]
+        Where:
+            Q^π(s, a) = Expected return for taking action a in state s under policy π
+            E[ ] = Expectation over possible trajectories
+            γ = Discount factor (0 ≤ γ ≤ 1)
+            R_{t+k+1} = Reward received k steps in the future
+        
+        NOTE:
+            1. The best possible return from state s is max_a Q(s,a).
+            2. The best possible action in state s is the action a that gives max_a Q(s,a).
+
+        This function helps evaluate how good a specific action is in a given state and is crucial for learning optimal policies (especially in Q-learning).
+
+    Bellman Equation:
+        Formula:
+            Q(s, a) = R(s) + γ * max_{a'} Q(s', a') <- Derived From: Q(s, a) = R1 + γ * [R2 + γR3 + γ^2R4 + ....]
+            Where:
+                Q(s, a): Optimal expected return from state s taking action a
+                R(s): Immediate reward at state s
+                γ: Discount factor (0 ≤ γ ≤ 1)
+                s': Next state after taking action a
+                a': All possible actions from s'
+                max_{a'} Q(s', a'): Best Q-value from the next state assuming optimal behavior
+
+        Interpretation:
+            This equation says:
+                "The optimal value of an action is what you get now (R(s)), plus the best you can do going forward (max Q from the next state)."
+
+            It’s foundational in computing optimal policies and is the core of Q-learning and other value-based RL methods.
+
+        NOTE: If we are in the terminal state (end-state / goal), then Q(s,a) = R(s)
+
+        NOTE: In Reinforcement Learning, the value of a state-action pair, denoted Q(s, a), can be viewed in two equivalent ways. One is the explicit 
+              return formulation, where Q(s, a) is expressed as the full sum of future rewards: 
+                Q(s, a) = R₁ + γR₂ + γ²R₃ + ..., 
+              capturing the total discounted return over time. The other is the Bellman Optimality Equation, which defines Q(s, a) recursively as: 
+                Q(s, a) = R(s) + γ * max_{a'} Q(s', a')
+              This form breaks the return into the immediate reward and the best possible future value from the next state onward. Repeatedly expanding 
+              the Bellman equation reconstructs the full return formula, proving that both are mathematically equivalent. The Bellman view is more 
+              useful in practice, as it allows the agent to learn Q-values iteratively without needing to simulate full episodes.
+    
+    Stochastic Environment in Reinforcement Learning
+        In Reinforcement Learning, a stochastic environment is one where the outcome of an action is not deterministic — the same action in the same state
+        can lead to different next states or rewards with certain probabilities.
+        Formally, this is captured by the transition probability function:
+            P(s' | s, a) = probability of reaching state s' after taking action a in state s
+
+        This randomness reflects real-world uncertainty — like wind affecting a drone’s flight or unexpected obstacles for a Mars rover.
+        Because of this uncertainty, the agent must learn to maximize expected return, not just immediate results. This makes value functions and Q-learning
+        crucial, as they estimate expected outcomes over many possible futures.
+        In contrast, a deterministic environment always produces the same result for a given state and action.
+
+    Deep Q-Network (DQN) — Definition
+        A Deep Q-Network (DQN) is a reinforcement learning algorithm that uses a neural network to approximate the Q-function, allowing agents to operate
+        in environments with large or continuous state spaces. It combines Q-learning with deep learning to learn optimal action-value functions without 
+        relying on a Q-table.
+    
+        Goal:
+            Learn Q(s, a) ≈ expected return for taking action a in state s, and acting optimally thereafter.
+
+        Learning the State-Value Function (DQN-style):
+            Initialize a neural network randomly as an approximation of Q(s, a).
+
+            Repeat:
+              Let the agent interact with the environment and collect experiences (s, a, R(s), s′).
+              Store the 10,000 most recent (s, a, R(s), s′) tuples.
+              → This storage process is called the Replay Buffer.
+
+            Train the neural network:
+              Sample from the buffer to build a training set using:
+              x = (s, a)
+              y = R(s) + γ * max_{a'} Q(s′, a′)
+              Train a new network Q_new such that Q_new(s, a) ≈ y
+
+            Update the main Q-network:
+              Set Q = Q_new
+
+    Short note on Q-table:
+        1. Each cell corresponds to a state-action pair (like a box for “state 3, action left”).
+
+        2. The value inside that cell represents the expected total reward (or return) you can expect by taking that action in that state and then following
+           the best policy afterward.
+
+        3. The reward is what you get immediately after taking an action.
+
+        4. The return is the sum of discounted future rewards starting from that state-action.
+
+        5. The discount factor (γ) controls how much future rewards count compared to immediate ones — it balances farsightedness vs nearsightedness.
+
+        6. Terminal states are special states where the episode ends, and after which no more rewards or actions happen.
+    
+    Epsilon-Greedy Strategy (ε-greedy):
+        Epsilon-greedy is a simple yet powerful action selection method used in reinforcement learning to balance exploration and exploitation.
+        At each decision step, the agent chooses:
+            Either:
+                A random action with probability ε (exploration)
+            Or:
+                The action with the highest estimated value (greedy action) with probability 1 − ε (exploitation)
+        Formula:
+            π(a|s) = 
+                ε / |A|          if a ≠ argmax_a' Q(s, a')
+                1 − ε + ε / |A|  if a = argmax_a' Q(s, a')
+            Where:
+                π(a|s) is the probability of choosing action a in state s
+                ε is the exploration rate (0 ≤ ε ≤ 1)
+                |A| is the number of possible actions
+                Q(s, a) is the estimated value of action a in state s
+
+        Typically, ε decays over time to favor exploitation after sufficient exploration. We start with a high value for ε but throughout iteration,
+        the value decreases.

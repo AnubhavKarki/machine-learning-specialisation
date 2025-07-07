@@ -1,0 +1,242 @@
+Week 4 - Notes
+
+Decision Trees:
+    A Decision Tree is a flowchart-like structure used for both classification and regression tasks. It consists of nodes and edges.
+    The topmost node is called the root node, which represents the first feature split in the dataset. The intermediate nodes between the root
+    and the final nodes are called decision nodes, where decisions are made based on feature values. The final nodes of the tree are known
+    as leaf nodes, and they represent the output or prediction of the model.
+
+    Learning Process:
+        In a decision tree, the learning process begins by selecting a feature to split the data at the root node. The dataset is divided based
+        on the values of that feature. This process continues recursively: at each subsequent decision node, a new feature is chosen to further
+        split the data. The objective is to systematically reduce the uncertainty in the dataset, eventually collapsing the data points in each
+        branch to a single, unique category represented by a leaf node. The tree keeps growing deeper as long as the splits provide meaningful
+        separation between classes.
+    
+    Decision Tree learning Process:
+        Decision 1: Choosing the split feature
+            At each node, the feature is selected based on how well it increases the purity of the resulting groups, meaning it groups similar 
+            data points together. This can be measured using metrics like Gini impurity or entropy.
+
+        Decision 2: When to stop splitting
+            Stop when a node is 100% one class (pure).
+
+            Stop if the next split would cause the tree to exceed a maximum depth.
+
+            Stop when the improvement in purity is below a defined threshold.
+
+            Stop when the number of examples in a node is too small to justify further splitting.
+
+        NOTE: The depth of a node refers to how many steps it is from the root. The root is at depth 0, its children at depth 1, and so on.
+              Smaller trees (with limited depth and fewer nodes) are generally less prone to overfitting, making them better at generalizing to unseen data.
+
+Entropy as a measure of impurity:
+    Entropy is a metric used in decision trees to quantify the impurity or disorder of a dataset at a node. A node with high entropy represents a 
+    mix of different classes (more impurity), while a node with low entropy indicates that most or all samples belong to a single class (less impurity).
+
+    The entropy formula is:
+        Entropy = -p₁ log₂(p₁) - p₂ log₂(p₂) - ... - pₖ log₂(pₖ)
+
+        where pₖ is the probability of class k at the node.
+
+        If a node has a 50-50 mix (e.g., 10 spam and 10 non-spam), entropy is highest at 1, indicating maximum impurity.
+        If a node has all examples from one class (e.g., all spam), entropy is 0, showing perfect purity.
+        For an 80-20 split, entropy is somewhere in between, around 0.72, suggesting moderate impurity.
+
+    Thus, lower entropy is better—it means the feature split leads to purer subsets. Decision trees aim to choose splits that minimize entropy,
+    which means increasing the purity of the resulting nodes.
+
+Gini Impurity:
+    Gini impurity is a measure used in decision trees to quantify how mixed the classes are in a node. It calculates the probability of
+    misclassification if a random sample was labeled based on the distribution of labels in the node.
+
+    The formula for Gini impurity in binary classification is:
+        1 - p² - (1 - p)²,
+    or simplified,
+        2p(1 - p),
+        where;
+            p is the probability of a class.
+    
+    A Gini score of 0 indicates perfect purity (all samples belong to one class), while higher values indicate greater impurity, with a maximum of 0.5 
+    when the classes are equally split. Compared to entropy, which uses logarithms and comes from information theory, Gini is computationally 
+    simpler and often performs just as well. In practice, both are used to choose splits in decision trees, but Gini is typically preferred due to its
+    efficiency and is the default in popular libraries like scikit-learn.
+
+Choosing a split - Information Gain:
+    When building a decision tree, one of the core ideas is to choose splits that maximize information gain, which essentially means 
+    reducing uncertainty (impurity) as much as possible. We do this using entropy as the impurity measure. The more a split reduces entropy, 
+    the more “information” it gives us about the target variable — hence the term information gain.
+
+    Steps to calculate Information Gain:
+        Compute the entropy at the parent node (before the split).
+        For each possible split:
+            1. Compute the entropy of each child node.
+            2. Take the weighted average entropy of the child nodes (based on how many examples go into each).
+            3. Information Gain = Entropy (parent) - Weighted average entropy (children)
+            4. The split with the highest information gain (i.e., the lowest weighted average child entropy) is chosen.
+    
+    FORMULA:
+        Information Gain = H(p_root) - (w_left * H(p_left) + w_right * H(p_right))
+        Where:
+            H(p_root): Entropy of the parent (root) node
+            H(p_left): Entropy of the left child node
+            H(p_right): Entropy of the right child node
+            w_left: Proportion of total examples that go to the left split
+            w_right: Proportion of total examples that go to the right split
+    
+    Purpose:
+        This version computes the expected reduction in entropy after a binary split. A higher Information Gain implies the feature split 
+        creates purer subsets, which is good for the decision tree.
+
+Complete Decision Tree:
+    1. Start with all examples at the root node.
+    2. Calculate information gain for all possible features, and pick the one with the highest information gain.
+    3. Split dataset according to selected feature, and create left and right branches of the tree.
+    4. Keep repeating splitting process until stopping criteria is met:
+        1. When a node is 100% one class
+        2. When splitting a node will result in the tree exceeding a maximum depth
+        3. Information gain from additional splits is less than threshold
+        4. When number of examples in a node is below a threshold
+
+    Steps:
+        1. Recursive splitting:
+            At each node, evaluate all possible features and calculate their information gain. Select the feature with the highest gain to 
+            split the data into subsets (left and right branches). Repeat this process for each subset, treating them as new nodes.
+
+        2. Stopping criteria check:
+            After each split, check if any stopping condition is met—such as all examples in the node belonging to one class, maximum tree 
+            depth reached, information gain below a threshold, or too few examples in the node. If so, mark the node as a leaf and assign
+            the class label.
+    
+    Pseudocode:
+        function build_tree(data, depth):
+            if stopping_condition(data, depth):
+                return create_leaf(data)
+            
+            best_feature = select_feature_with_max_info_gain(data)
+            left_data, right_data = split_data(data, best_feature)
+            
+            left_branch = build_tree(left_data, depth + 1)
+            right_branch = build_tree(right_data, depth + 1)
+            
+            return create_node(best_feature, left_branch, right_branch)
+    
+Using one-hot encoding of categorical features:
+    One-hot encoding is a technique used to represent categorical features with more than two possible values in a binary format, making them
+    easier for models like decision trees to process. Instead of treating a categorical feature as a single variable with multiple values, 
+    one-hot encoding creates separate binary features for each category. This allows decision trees to split on these binary features 
+    individually, improving their ability to capture patterns and make better splits.
+
+    For example, consider a feature “Color” with values {Red, Blue, Green}. One-hot encoding would transform this into three
+    binary features: Is_Red, Is_Blue, and Is_Green. If an email dataset uses “Color” as a feature, the tree can split on "Is_Red = True"
+    or "Is_Blue = True" independently, which is clearer than trying to split on the original categorical variable directly.
+
+    One-hot encoding is not limited to decision trees; it is widely used in other machine learning models like neural networks.
+    Neural networks, which operate on numerical input, benefit from one-hot encoding because it converts categorical data into a numeric
+    format without implying any ordinal relationship, preserving the categorical nature of the data.
+
+    In summary, one-hot encoding helps models handle categorical variables effectively by converting them into binary features, enhancing model
+    performance across various algorithms beyond just decision trees.
+
+Decision Trees on Continuous Valued Features:
+    Decision trees handle continuous features by finding the best threshold to split the data. Instead of using one-hot encoding, the tree checks
+    values like “Age ≤ 30” or “Income > 50K.” It tests multiple thresholds and picks the one with highest information gain.
+    Example:
+        Feature = Income
+        Tree checks:
+            Income ≤ 40K → Class A
+            Income > 40K → Class B
+
+    It chooses the threshold that best separates the classes. This lets decision trees work well with numeric data by turning it into 
+    binary splits at each node.
+
+Regression Trees:
+    Regression Trees differ from classification trees in that they predict continuous values instead of class labels. Instead of using impurity 
+    measures like entropy or Gini, regression trees evaluate splits based on the reduction in variance.
+
+    At each split, the tree calculates the weighted average of variances of the left and right branches and chooses the split that minimizes 
+    this combined variance—similar to how classification trees minimize weighted impurity.
+
+    Formula:
+        Information Gain = Variance(parent) - [w_left * Variance(left) + w_right * Variance(right)]
+
+    This approach ensures that each leaf node of the regression tree represents a region of the input space with minimal output variance, 
+    improving the prediction of continuous targets.
+
+NOTE:
+    Variance is a measure of how much the values in a dataset differ from the mean. It tells us how spread out the values are. In regression,
+    lower variance in the target values means more consistent predictions, which is desirable when building regression trees.
+    Formula for Variance:
+        For a dataset with m values:
+            Variance (σ²) = (1/m) * Σ (yᵢ - μ)²
+        Where:
+            yᵢ = each individual value
+            μ = mean of all values
+            Σ = sum over all examples
+            m = number of examples
+
+    Standard Deviation (σ): It’s simply the square root of variance:
+        FORMULA:
+            S.D(σ) = √Variance = √[(1/m) * Σ (yᵢ - μ)²]
+
+    In regression trees, splits are made to minimize the variance within each group after a split. A lower variance in a leaf node implies the 
+    predictions from that node are more precise (closer to the mean), making variance a key metric for choosing splits.
+
+    In essence:
+        Classification Tree → Information Gain → Better class separation
+        Regression Tree → Variance Reduction → Lower prediction error
+
+Using multiple decision trees:
+    One of the weaknesses of using a single decision tree is that, it can be highly sensitive to small change in the data. A better approach to solving
+    such problems is by not using one but multiple decision trees together. This process is called as tree ensemble.
+
+Sampling with replacement:
+    Sampling with Replacement is a technique where data points are selected from a dataset one at a time, and after each selection, 
+    the chosen point is placed back into the dataset before the next draw. This means the same data point can be chosen multiple times in a 
+    single sampling run. It's commonly used in ensemble methods like bagging (e.g., Random Forests), where each model in the ensemble is trained 
+    on a different subset of data, allowing for diversity in the models and reducing overfitting.
+
+    Sampling with replacement is done to introduce variability in the training data for each model in an ensemble. By allowing duplicates and 
+    missing some examples, each model sees a slightly different version of the dataset, helping reduce overfitting and improve generalization.
+    It’s especially useful in methods like bagging, where combining multiple diverse models leads to more robust predictions.
+
+Bagging:
+    Bagging (Bootstrap Aggregating) is an ensemble learning technique where multiple models, typically of the same type (e.g., decision trees),
+    are trained on different bootstrapped subsets of the training data (i.e., sampled with replacement). Each model learns independently, and
+    their outputs are combined—usually via majority vote for classification or averaging for regression—to produce the final prediction.
+
+Bagged Decision Tree:
+    A Bagged Decision Tree refers to this technique applied specifically with decision trees. Since decision trees are prone to high variance,
+    bagging stabilizes their predictions by reducing variance and improving generalization without increasing bias.
+
+Random Forest:
+    Random Forest is an ensemble learning method that builds multiple decision trees during training and outputs the majority vote
+    (for classification) or average prediction (for regression). It uses bagging (sampling with replacement) and introduces extra randomness
+    by selecting a random subset of features at each split. This helps reduce overfitting, improves generalization, and makes it more 
+    robust compared to a single decision tree.
+
+Boosting:
+    Boosting is an ensemble technique where models are trained sequentially, and each new model tries to correct the errors made by the
+    previous ones. It focuses more on the data points that were misclassified, gradually improving the model's accuracy. Unlike bagging,
+    it builds models one after another.
+
+Boosted Decision Trees:
+    These are decision trees used in boosting. Each tree is trained on the residuals (errors) of the previous tree, and the final prediction
+    is a weighted sum of all trees. This helps create a strong learner from many weak learners by emphasizing mistakes progressively.
+
+XGBoost (Extreme Gradient Boosting):
+    XGBoost is a high-performance implementation of gradient boosting. It’s known for speed and accuracy due to optimized algorithms,
+    regularization (to prevent overfitting), parallel processing, and handling of missing values. It’s widely used in competitions and industry.
+
+Decision Trees vs Neural Networks:
+    1. Decision Trees and Tree ensembles:
+        a. Works well no tabular (structured) data
+        b. Not recommended for unstructured data (images, audio, text)
+        c. They are very fast to train
+        d. Small decision trees may be human interpretable
+    
+    2. Neural Networks:
+        a. Works well on all types of data, including tabular (structured) and unstructured data
+        b. May be slower than a decision tree
+        c. Works with transfer learning
+        d. When building a system of multiple models working together, it might be easier to string together multiple neural networks.

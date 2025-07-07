@@ -1,0 +1,340 @@
+Week 2
+
+Multiple Linear Regression:
+    Previously, with simple linear regression we worked with one feature and one target variable. With multiple linear regression we work with
+    multiple features (or many independent variables) to predict one dependent variable.
+
+    EXAMPLE: Predicting the price of a house, using features such as: Size, Number of floors, Age of house etc...
+
+    X subscript(j) = "jth" feature
+    n = Number of features
+    X^(i) = Features of ith training example. This X usually has an arrow on top, indicating it to be a vector, aka 1D array, aka a row vector.
+        EXAMPLE: X^2 = [1,2,3,4,5] <- Row vector
+    X subscript(j)^(i) = Value of feature 'j' in "ith" training example
+        EXAMPLE: X subscript(3)^2 = Second row third index
+    
+    Model:
+        Previously: f-subscript(w,b) of (x) = wx + b
+            This was how we mapped a simple linear regression onto the model.
+
+        But, now as we have more than one feature to work with, we modify the simple linear regression's equation a little bit.
+        FORMULA: f-subscript(w,b) of (X) = w1X1 + w2X2 + w3X3 + w4x4 + .... + b
+        EXAMPLE: f-subscript(w,b) of (X) = 0.1*X1 + 2*X2 + 4*X3 + (-2.67)*x4 + 80
+            X1 = Size of the house
+            X2 = Number of bedrooms
+            X3 = Number of floors
+            X4 = Age of the house
+            w1...w4 = Adjusted Weight Values, where 0.1 is the increase in price for every unit increase in size of the house and so on.
+            b  = Base Price (in 1000s of Dollars)
+        
+        Re-writing the above long formula in a short and simple notation:
+        Previously: 
+            FORMULA: f-subscript(w(Vector),b) of (X(Vector)) = w1X1 + w2X2 + w3X3 + w4x4 + .... + b
+            Let,
+                W(Vector) = [w1, w2, w3, w4, ...., wn]
+                'b' is a number not a vector                    [These are the parameters of the model]
+
+                X(Vector) = [X1, X2, X3, X4, ...., Xn]
+
+        So, the formula now becomes:
+            FORMULA: f subscript(w(Vector), b) (X(Vector)) = W . X + b        [(.) = dot product]
+            NOTE: The dot product simple does W.X = w1X1 + w2X2 and so on...
+
+        In this way, we can write the multiple linear regression in a compact form.
+    
+There are neat and useful ways to implement multiple linear regression:
+    1. Vectorization:
+            EXAMPLE:
+                Parameters and Features:
+                    W = [w1, w2, w3]
+                    b is a number
+                    X = [x1, x2, x3]
+
+                    In linear algebra: count starts from 1
+                    We use linear algebra library from Python called as NumPy.
+                    In Python, we start counting from 0
+
+                Now suppose, without vectorization we write our function:
+                    f = w[0] * x[0] +
+                        w[1] * x[1] +
+                        w[2] * x[2] + b
+
+                This was fine as we only had three features, what if we worked on hundreds or thousands of features, then hardcoding it would
+                take forever.
+
+                Now without vectorization but using summation:
+                    f-subscript(w(Vector), b) (X(Vector)) = Summation j=1 to n (wj * xj) + b
+                
+                This is just a standard for-loop implementation in Python.
+                EXAMPLE:
+                    f = 0
+                    for j in range(0,n):
+                        f = f + w[j] * x[j]
+                    f = f + b
+
+                It is much better than the previous approach. But this approach also doesn't use vectorization and hence is not very efficient.
+
+            Using Vectorization:
+                FORMULA: f-subscript(w(Vector), b) (X(Vector)) = W(Vector) . X(Vector) + b
+                In CODE: f = np.dot(w,x) + b    [dot() function performs dot product of provided row-vector arrays]
+
+                In the back, NumPy uses Parallel hardware jobs to efficiently solve the dot product instead of sequential calculation or for-loop.
+        
+        Vector Notation:
+            Parameters:
+                W = [w1, w2, .... wn]
+                b is a number
+            
+            Model:
+                f(w, b)(X) = W . X + b
+            
+            Cost Function:
+                J(W,b) instead of J(w1,w2,w3,....wn,b)
+            
+            Gradient Descent:
+                Previous Notation:
+                    repeat until convergence {
+                        For w: w := w - alpha * (∂/∂w-sub(j) J(w1, w2, ...., wn, b))
+                        For b: b := b - alpha * (∂/∂b J(w1, w2, ...., wn, b))
+                    }
+
+                Vectorized Notation:
+                    repeat until convergence {
+                        For w: w := w - alpha * (∂/∂w-sub(j) J(W,b))
+                        For b: b := b - alpha * (∂/∂b J(W,b))
+                    }
+                
+                So the formula after derivation becomes:
+                    repeat{
+                        wn = wn - alpha * 1/m Summation i=1 to m (f-sub(w,b) (X^(i)) - y^(i)) xn^(i)
+                        b = b - alpha * 1/m Summation i=1 to m (f-sub(w,b) (X^(i)) - y^(i))
+                    }
+
+An alternative to gradient descent for linear regression:
+    1. Normal Equation:
+        The Normal Equation provides a direct solution for the optimal parameters (weights and bias) in linear regression, eliminating the need for
+        iterative methods like gradient descent.
+
+        For a linear regression model of the form f_w,b(x) = w * x + b, we augment the feature matrix X and the parameter vector theta.
+
+        The design matrix X includes a column of ones for the bias term:
+        X = [
+        1 x_1^(1) x_2^(1) ... x_n^(1) ;
+        1 x_1^(2) x_2^(2) ... x_n^(2) ;
+        ... ;
+        1 x_1^(m) x_2^(m) ... x_n^(m)
+        ]
+
+        The vector of actual target values is y = [y^(1) ; y^(2) ; ... ; y^(m)]
+
+        The parameter vector theta contains the bias b and the weights w_1, ..., w_n:
+        theta = [b ; w_1 ; ... ; w_n]
+
+        The Normal Equation to find the optimal parameter vector theta is:
+        theta = (X_transpose * X)_inverse * X_transpose * y
+
+        Here, X_transpose is the transpose of X, and (X_transpose * X)_inverse is the inverse of the matrix product X_transpose * X.
+        This calculation directly yields the optimal values for the bias and all weights that minimize the linear regression cost function.
+
+        This equation only works for linear regression and solves for w, and b without iterations.
+
+        Disadvantages:
+            1. Doesn't generalize to other learning algorithms.
+            2. Slow when number of features is large (>10,000)
+
+        What you need to know:
+            Normal equation method may be used in machine learning libraries that implement linear regression.
+            For most learning algorithms, gradient descent is the recommended method for finding parameters w, and b.
+
+Ways to improve gradient descent:
+    1. Feature Scaling (Standardization):
+        Feature scaling is the process of normalizing or standardizing input features so that they have similar ranges or distributions.
+        It is required because many machine learning algorithms, including gradient descent, perform better when features are on comparable scales.
+
+        For example, consider a linear regression problem to predict house prices using two features: size in square feet and number of bedrooms.
+        The size feature might range from 500 to 4000, while the number of bedrooms ranges from 1 to 5. In this case, a small change in the weight
+        associated with the size feature (w1) can cause a large change in the predicted price because the feature values are large, whereas
+        a similar change in the weight for bedrooms (w2) has a much smaller effect because the feature values are small.
+
+        This difference in scale causes the scatter plot of the data and the contour plot of the cost function to look distorted or skewed.
+        The contour plot may appear very tall and skinny, reflecting the uneven impact of each feature on the cost.
+
+        Because of this shape, gradient descent struggles to converge efficiently. It tends to bounce back and forth along the steep narrow
+        valley in the cost surface, taking many iterations to reach the minimum.
+
+        Feature scaling addresses these issues by transforming features to a common scale, such as zero mean and unit variance or scaling values
+        between 0 and 1. This transformation makes the contours more circular and balanced, allowing gradient descent to converge faster and more reliably.
+
+        Feature scaling, called standardization, transforms features to a similar scale by centering them around a mean of 0 and scaling to a
+        standard deviation of 1. This normalization balances feature ranges, enabling algorithms like gradient descent to converge faster 
+        and perform more reliably.
+    
+        Implementing Feature Scaling:
+            1. Simple Max Normalization:
+                Simple max scaling is a feature scaling technique where each value in a feature is divided by the maximum value of that feature.
+                This scales all values to a range between 0 and 1, preserving the relative relationships between data points while reducing differences
+                in scale across features.
+
+                EXAMPLE: If x1 scales from 300 - 2000, then we take each individual value of x1 and divide it by 2000.
+                        If x2 scales from 0 - 5, then we take the maximum value of x2 and divide it by 5.
+            
+            2. Mean Normalization:
+                Mean normalization is a feature scaling technique where each value is adjusted by subtracting the mean of the feature and dividing
+                by the range (max − min). This centers the data around zero and scales it between approximately −1 and 1.
+                Formula:
+                    x_scaled = (x − mean) / (max − min)
+
+                It helps models converge faster by balancing the feature distribution around zero.
+                EXAMPLE:
+                    If x1 ranges from 300 to 2000 and has a mean of 1200, then each value of x1 is transformed using:
+                      (x1 − 1200) / (2000 − 300)
+
+                    If x2 ranges from 0 to 5 with a mean of 2.5, then each value of x2 becomes:
+                      (x2 − 2.5) / (5 − 0)
+
+                    This centers both features around 0 and scales them within approximately −1 to 1.
+            
+            3. Z-score Normalization:
+                Z-score normalization (also called standardization) is a feature scaling technique that transforms data to have a mean of 0 and a
+                standard deviation of 1. This helps ensure that features with different units or scales contribute equally to the model.
+
+                Mean (μ) is the average value of the feature, and standard deviation (σ) measures how spread out the values are from the mean.
+                A high standard deviation means values are widely spread; a low one means they're close to the mean.
+
+                Formula:
+                    x_scaled = (x − μ) / σ
+
+                Where:
+                    x = original feature value
+                    μ (mu) = mean of the feature
+                    σ (sigma) = standard deviation of the feature
+                    x_scaled = standardized value
+
+                Example:
+                    If a feature x1 has values ranging from 300 to 2000 with a mean (μ) of 1200 and a standard deviation (σ) of 400, then a value
+                    of x1 = 1600 would be scaled as: 
+                        (1600 − 1200) / 400 = 1.0
+                    This tells us that the value 1600 is one standard deviation above the mean.
+            
+            4. Min-Max Scaling:
+                Min-Max Scaling is a feature scaling technique that transforms features to a fixed range, usually between 0 and 1.
+                It rescales the data based on the minimum and maximum values of the feature, preserving the relative distances between points.
+
+                Formula:
+                    x_scaled = (x − min) / (max − min)
+
+                Where:
+                    x = original feature value
+                    min = minimum value of the feature
+                    max = maximum value of the feature
+                    x_scaled = scaled value between 0 and 1
+
+                Example:
+                If a feature x1 ranges from 300 to 2000, and a particular value is 1600, then:
+                x_scaled = (1600 − 300) / (2000 − 300) = 1300 / 1700 ≈ 0.76
+
+                If another feature x2 ranges from 0 to 5, and a value is 3, then:
+                x_scaled = (3 − 0) / (5 − 0) = 3 / 5 = 0.6
+
+                This scales both features to the range [0, 1], making them comparable for machine learning models.
+            
+        NOTE: Aim for about -1 <= xj <= 1 for each feature, but -3 to 3 or -0.3 to 0.3 are fine as well. Even odd ranges like
+              0 to 3, or -2 to 0.5 are completely fine, they can be rescaled but is not necessary.
+              But, for features who have massive range like -100 to 100 then it can take on many values making it too large, hence we should
+              rescale such scales to a much lower limit or a smaller scale, other example would be -0.001 to 0.001, even though the values are very small
+              the magnitude gap is massive.
+
+Checking Gradient Descent for Convergence:
+
+    Monitoring Convergence with Learning Curve:   
+        Minimize J(w, b) with respect to parameters w and b.
+        Plot the value of J at each iteration, where the horizontal axis is the iteration number and the vertical axis is the cost function J(w, b).
+        This plot is called the learning curve.
+        If the learning curve increases, it indicates the learning rate (alpha) is too high.
+        If the curve levels off (stops decreasing), it means the algorithm has converged — no significant improvement is happening.
+    
+    Note: The number of iterations required varies by application.
+
+    Automatic convergence test:
+        Define a small threshold ε (epsilon), e.g., 0.001 (10^-3).
+        If the decrease in J(w, b) between two consecutive iterations is less than or equal to ε, declare convergence.
+        At convergence, the parameters w and b are expected to be close to the global minimum of the cost function.
+
+Choosing Learning Rate:
+    If the learning rate is too small it might take forever, if it is too large it may never converge hence we need to select appropriate learning rate.
+    Sometimes, increase in learning rate could be due to a bug in the code as well, where the formula is incorrectly applied in the equation.
+
+    One tip for choosing an appropriate learning rate is, with a small enough alpha, J(W,b) should decrease on every iteration.
+
+    Values of alpha to try:
+        Firstly, 0.001, then 0.01 then 0.1 and finally 1.
+
+Feature Engineering:
+    Feature engineering means using intuition and domain knowledge to create new features by transforming or combining existing ones.
+    This helps models learn better by giving them more meaningful inputs.
+
+    Example:
+        Original features:
+            X1 = frontage (length of property front)
+            X2 = depth (length of property depth)
+
+        A simple linear model might be:
+            f(W,b)(X) = w1 * X1 + w2 * X2 + b
+
+        But the area (frontage times depth) might be important, so create a new feature:
+            X3 = X1 * X2
+
+        Then the model becomes:
+            f(W,b)(X) = w1 * X1 + w2 * X2 + w3 * X3 + b
+    
+    Polynomial Regression:
+    1. Why Polynomial Regression is Used for Curvy Predictions
+        Polynomial regression is an extension of linear regression where the relationship between the input feature and the target variable is 
+        modeled as an n-th degree polynomial. This technique allows the model to fit non-linear patterns in the data, which linear regression 
+        cannot capture.
+
+        For example, if the data has a parabolic shape, a linear model will underperform because it can only draw a straight line.
+        But a polynomial regression can fit curves like parabolas (x²), cubic curves (x³), or even more complex wavy shapes by increasing the degree of
+        the polynomial.
+
+        Polynomial regression can approximate a wide range of functional relationships, making it powerful when the true data relationship is not linear.
+    
+    2. Why Playing with X is Useful in These Scenarios
+        In polynomial regression, we "play with X" by transforming the original input feature X into multiple features: X², X³, X⁴, and so on.
+        Each of these new features captures a different level of curvature:
+            X² adds a basic curve
+            X³ adds more complexity or asymmetry
+            Higher-degree terms can fit tighter bends and wiggles
+
+        This transformation gives the model more flexibility in shaping the prediction curve to match the data.
+
+        Effectively, you’re engineering new, informative features from the original one. This is useful when the relationship between the input and 
+        output is not simply a straight line.
+
+    3. How Different Feature Transformations Help
+        Besides polynomial terms (x², x³), other nonlinear transformations can help model complex patterns:
+            sqrt(x): Useful when the relationship grows quickly at first, then slows
+            log(x): Captures diminishing returns; often used in economics
+            1/x: Models inverse relationships, common in physics and chemistry
+            abs(x): Can be useful for symmetry (e.g., distance from a point)
+            x^0.3 or x^0.5: Fractional exponents can soften growth curves
+            sin(x), cos(x): Great for periodic or cyclic patterns (e.g., time series)
+
+        These transformations reshape the input space, allowing linear models to learn complex, nonlinear mappings.
+
+    4. How an ML Engineer Knows What to Use
+        ML engineers use a combination of intuition, domain knowledge, and experimentation:
+            Visual Exploration (EDA)
+            Domain Knowledge
+            Trial and Error
+            Automated Tools
+            Regularization
+
+    Other common feature engineering techniques:
+        Interaction terms (multiplying features to capture combined effects)
+        Binning (turning continuous data into categories)
+        Log transforms (reduce skew in data)
+        Encoding categorical variables (one-hot, label encoding)
+        Scaling and normalization (standardizing ranges)
+        Extracting date/time parts (day, month, year, weekday)
+        Feature engineering is often creative and iterative, key to better model performance.
